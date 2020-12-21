@@ -16,12 +16,12 @@ BUILD_VERSION?="$(shell git describe --tags `git rev-list --tags --max-count=1`)
 BUILD_GOVERSION="$(shell go version | cut -d " " -f3 | sed -r 's/[go]+//g')"
 BUILD_TIMESTAMP=$(shell date +%F"_"%T)
 BUILD_TAG="$(shell git rev-parse HEAD)"
-export LD_OPTS=-ldflags "-s -w -X github.com/fallard84/cs-cloud-firewall/pkg/version.Version=$(BUILD_VERSION) \
--X github.com/fallard84/cs-cloud-firewall/pkg/version.BuildDate=$(BUILD_TIMESTAMP) \
--X github.com/fallard84/cs-cloud-firewall/pkg/version.Tag=$(BUILD_TAG) \
--X github.com/fallard84/cs-cloud-firewall/pkg/version.GoVersion=$(BUILD_GOVERSION)"
+export LD_OPTS=-ldflags "-s -w -X github.com/fallard84/cs-cloud-firewall-bouncer/pkg/version.Version=$(BUILD_VERSION) \
+-X github.com/fallard84/cs-cloud-firewall-bouncer/pkg/version.BuildDate=$(BUILD_TIMESTAMP) \
+-X github.com/fallard84/cs-cloud-firewall-bouncer/pkg/version.Tag=$(BUILD_TAG) \
+-X github.com/fallard84/cs-cloud-firewall-bouncer/pkg/version.GoVersion=$(BUILD_GOVERSION)"
 
-RELDIR = "cs-cloud-firewall-${BUILD_VERSION}"
+RELDIR = "cs-cloud-firewall-bouncer-${BUILD_VERSION}"
 
 
 all: clean test build
@@ -35,7 +35,7 @@ test:
 clean:
 	@rm -f $(BINARY_NAME)
 	@rm -rf ${RELDIR}
-	@rm -f cs-cloud-firewall.tgz || ""
+	@rm -f cs-cloud-firewall-bouncer.tgz || ""
 
 
 .PHONY: release
@@ -52,5 +52,5 @@ release: build
 	@chmod +x $(RELDIR)/install.sh
 	@chmod +x $(RELDIR)/uninstall.sh
 	@chmod +x $(RELDIR)/upgrade.sh
-	@tar cvzf cs-cloud-firewall.tgz $(RELDIR)
+	@tar cvzf cs-cloud-firewall-bouncer.tgz $(RELDIR)
 	
