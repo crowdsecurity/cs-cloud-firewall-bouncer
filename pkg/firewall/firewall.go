@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/tjarratt/babble"
-
 	csmodels "github.com/crowdsecurity/crowdsec/pkg/models"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/models"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/providers"
+	log "github.com/sirupsen/logrus"
+	"github.com/zhexuany/wordGenerator"
 )
 
 type Bouncer struct {
@@ -115,9 +114,9 @@ func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.Firewal
 }
 
 func (f *Bouncer) genNewRuleName() string {
-	babbler := babble.NewBabbler()
-	babbler.Count = 2
-	r := fmt.Sprintf("%s-%s", f.RuleNamePrefix, strings.ToLower(babbler.Babble()))
+
+	random := wordGenerator.GetWords(5, 20)
+	r := fmt.Sprintf("%s-%s", f.RuleNamePrefix, strings.ToLower(strings.Join(random, "-")))
 	return r
 }
 

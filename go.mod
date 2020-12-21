@@ -9,6 +9,7 @@ require (
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/tjarratt/babble v0.0.0-20191209142150-eecdf8c2339d
+	github.com/zhexuany/wordGenerator v0.0.0-20161102120352-1f13e790d534
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	google.golang.org/api v0.36.0
 	google.golang.org/appengine v1.6.7
