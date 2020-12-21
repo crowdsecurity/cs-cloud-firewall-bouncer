@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/crowdsecurity/crowdsec/raw/master/docs/assets/images/crowdsec_logo.png" alt="CrowdSec" title="CrowdSec" width="400" height="240" style="max-width:100%;">
+<a href="https://github.com/crowdsecurity/crowdsec"><img src="https://github.com/crowdsecurity/crowdsec/raw/master/docs/assets/images/crowdsec_logo.png" alt="CrowdSec" title="CrowdSec" width="400" height="240" style="max-width:100%;"></a>
 </p>
 <p align="center">
 <a href='https://github.com/fallard84/cs-cloud-firewall-bouncer/actions?query=workflow%3Abuild'><img src='https://github.com/fallard84/cs-cloud-firewall-bouncer/workflows/build/badge.svg' alt='Build Status' /></a>
@@ -18,7 +18,7 @@
 
 # cs-cloud-firewall-bouncer
 
-Bouncer for cloud firewalls to use with Crowdsec.
+Bouncer for cloud firewalls to use with [Crowdsec](https://github.com/crowdsecurity/crowdsec).
 
 :warning: This is not an official Crowdsec bouncer.
 
