@@ -16,13 +16,13 @@
 &#128172; <a href="https://discourse.crowdsec.net">Discourse </a>
 </p>
 
-# cs-cloud-firewall-bouncer
+# CrowdSec Cloud Firewall Bouncer
 
 Bouncer for cloud firewalls to use with [Crowdsec](https://github.com/crowdsecurity/crowdsec).
 
 :warning: This is not an official Crowdsec bouncer.
 
-cs-cloud-firewall-bouncer will periodically fetch new and expired/removed decisions from CrowdSec Local API and update cloud firewall rules accordingly.
+The Cloud Firewall Bouncer will periodically fetch new and expired/removed decisions from the CrowdSec Local API and update cloud firewall rules accordingly.
 
 Supported cloud providers:
 
