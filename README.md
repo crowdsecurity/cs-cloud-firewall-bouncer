@@ -7,20 +7,24 @@
 
 </p>
 <p align="center">
-&#x1F4DA; <a href="#installation-as-a-systemd-service/">Documentation</a>
+&#x1F4DA; <a href="#installation-as-a-systemd-service">Documentation</a>
 &#x1F4A0; <a href="https://hub.crowdsec.net">Hub</a>
 &#128172; <a href="https://discourse.crowdsec.net">Discourse </a>
 </p>
 
 # cs-cloud-firewall-bouncer
 
-Crowdsec bouncer written in golang for cloud firewalls.
+Bouncer for cloud firewalls to use with Crowdsec.
+
+:warning: This is not an official Crowdsec bouncer.
 
 cs-cloud-firewall-bouncer will periodically fetch new and expired/removed decisions from CrowdSec Local API and update cloud firewall rules accordingly.
 
 Supported cloud providers:
 
-- Google Cloud Platform (GCP) :check_mark:
+- Google Cloud Platform (GCP) :heavy_check_mark:
+
+:information_source: More cloud providers will be added shortly. See [todo](#todo)
 
 ## Installation (as a systemd service)
 
@@ -91,3 +95,11 @@ log_level: info
 api_url: <API_URL> # when install, default is "localhost:8080"
 api_key: <API_KEY> # Add your API key generated with `cscli bouncers add --name <bouncer_name>`
 ```
+
+## Todo
+
+- Add Docker image with instructions
+- Add AWS Network Firewall as a provider
+- Add Azure as a provider
+- Add Google Cloud Armor as a provider
+- Add AWS WAF as a provider
