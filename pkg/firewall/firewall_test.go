@@ -43,7 +43,8 @@ func TestBouncer_getRuleToUpdate(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		rule, rules := f.getRuleToUpdate(tests["empty"].rules)
 		assert.Contains(t, rule.Name, f.RuleNamePrefix)
-		assert.Contains(t, rules[0].Name, f.RuleNamePrefix)
+		assert.Regexp(t, "(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)", rule.Name)
+		assert.Equal(t, rules[0].Name, rule.Name)
 		assert.Equal(t, models.New, rule.State)
 	})
 	t.Run("existing", func(t *testing.T) {
