@@ -2,7 +2,7 @@
 <img src="https://github.com/crowdsecurity/crowdsec/raw/master/docs/assets/images/crowdsec_logo.png" alt="CrowdSec" title="CrowdSec" width="400" height="240" style="max-width:100%;">
 </p>
 <p align="center">
-<a href='https://github.com/fallard84/cs-cloud-firewall-bouncer/actions?query=branch%3Amain+workflow%3Abuild'><img src='https://github.com/fallard84/cs-cloud-firewall-bouncer/workflows/build/badge.svg?branch=main' alt='Build Status' /></a>
+<a href='https://github.com/fallard84/cs-cloud-firewall-bouncer/actions?query=workflow%3Abuild'><img src='https://github.com/fallard84/cs-cloud-firewall-bouncer/workflows/build/badge.svg' alt='Build Status' /></a>
 <a href='https://github.com/fallard84/cs-cloud-firewall-bouncer/actions?query=branch%3Amain+workflow%3Atests'><img src='https://github.com/fallard84/cs-cloud-firewall-bouncer/workflows/tests/badge.svg?branch=main' alt='Tests Status' /></a>
 <a href='https://coveralls.io/github/fallard84/cs-cloud-firewall-bouncer?branch=main'><img src='https://coveralls.io/repos/github/fallard84/cs-cloud-firewall-bouncer/badge.svg?branch=main' alt='Coverage Status' /></a>
 <a href='https://goreportcard.com/report/github.com/fallard84/cs-cloud-firewall-bouncer'><img src='https://goreportcard.com/badge/github.com/fallard84/cs-cloud-firewall-bouncer' alt='Go Report Card' /></a>
