@@ -69,7 +69,7 @@ Please keep this key since you will not be able to retrive it!
 
 You should now have all data to create the bouncer configuration. Assuming I am using GCP service account credentials and I want to create firewall rules on the default network, you would have the following configuration:
 
-bouncer-config.yaml:
+config-bouncer.yaml:
 
 ```yaml
 cloud_providers:
