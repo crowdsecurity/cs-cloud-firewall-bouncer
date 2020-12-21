@@ -1,0 +1,11 @@
+cloud_providers:
+  gcp:
+    project_id: ${GCP_PROJECT_ID}
+    network: ${GCP_NETWORK_ID}
+update_frequency: 10s
+daemonize: true
+log_mode: file
+log_dir: /var/log/
+log_level: info
+api_url: ${API_URL}
+api_key: ${API_KEY}
