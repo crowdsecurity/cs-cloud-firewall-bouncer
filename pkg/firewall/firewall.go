@@ -115,10 +115,7 @@ func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.Firewal
 
 func (f *Bouncer) genNewRuleName() string {
 
-	randomWords, err := diceware.Generate(2)
-	if err != nil {
-		log.Fatalf("not able to generate random words: %s", err.Error())
-	}
+	randomWords := diceware.MustGenerate(2)
 	r := fmt.Sprintf("%s-%s", f.RuleNamePrefix, strings.ToLower(strings.Join(randomWords, "-")))
 	return r
 }
