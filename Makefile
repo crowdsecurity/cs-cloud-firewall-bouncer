@@ -8,7 +8,7 @@ GOGET=$(GOCMD) get
 
 PREFIX?="/"
 PID_DIR = $(PREFIX)"/var/run/"
-BINARY_NAME=cs-cloud-firewall
+BINARY_NAME=cs-cloud-firewall-bouncer
 
 
 #Current versioning information from env
