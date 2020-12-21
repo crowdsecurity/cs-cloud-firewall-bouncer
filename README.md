@@ -90,15 +90,21 @@ cloud_providers:
   gcp:
     project_id: gcp-project-id # optional if using application default credentials, will override project id of the application default credentials
     network: default # mandatory, this is the VPC network where the firewall rules will be created
-rule_name_prefix: crowdsec # mandatory, this is the prefix for the firewall rule names
+rule_name_prefix: crowdsec # mandatory, this is the prefix for the firewall rule names to create/update
 update_frequency: 10s
-daemonize: false
+daemonize: true
 log_mode: stdout
 log_dir: log/
 log_level: info
 api_url: <API_URL> # when install, default is "localhost:8080"
 api_key: <API_KEY> # Add your API key generated with `cscli bouncers add --name <bouncer_name>`
 ```
+
+## Authentication
+
+### GCP
+
+Authentication to GCP is done through [Application Default Credentials](https://cloud.google.com/docs/authentication/production). If using a service account, the GCP project ID will be automatically determined (using the project ID of the service account) and does not have to be specified in the configuration. If the service account resides in a different project than the VPC network, the GCP project ID must be overridden in the configuration.
 
 ## Todo
 
