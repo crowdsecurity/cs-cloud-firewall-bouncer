@@ -2,6 +2,7 @@ package models
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -19,7 +20,9 @@ func TestConvertSourceRangesMapToSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ConvertSourceRangesMapToSlice(tt.args.sourceRanges); !reflect.DeepEqual(got, tt.want) {
+			got := ConvertSourceRangesMapToSlice(tt.args.sourceRanges)
+			sort.Strings(got)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ConvertSourceRangesMapToSlice() = %v, want %v", got, tt.want)
 			}
 		})
