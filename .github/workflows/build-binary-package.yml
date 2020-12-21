@@ -1,5 +1,4 @@
-# .github/workflows/build-docker-image.yml
-name: build-binary-package
+name: build
 
 on:
   release:
