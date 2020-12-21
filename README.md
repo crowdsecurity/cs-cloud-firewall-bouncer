@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/crowdsecurity/cs-firewall-bouncer/raw/main/docs/assets/crowdsec_linux_logo.png" alt="CrowdSec" title="CrowdSec" width="280" height="300" />
+<img src="https://github.com/crowdsecurity/crowdsec/raw/master/docs/assets/images/crowdsec_logo.png" alt="CrowdSec" title="CrowdSec" width="400" height="240" style="max-width:100%;">
 </p>
 <p align="center">
 <a href='https://github.com/fallard84/cs-cloud-firewall-bouncer/actions?query=branch%3Amain+workflow%3Abuild'><img src='https://github.com/fallard84/cs-cloud-firewall-bouncer/workflows/build/badge.svg?branch=main' alt='Build Status' /></a>
