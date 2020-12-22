@@ -83,7 +83,6 @@ func GenerateConfig(configBuff []byte) (*BouncerConfig, error) {
 }
 
 func NewConfig(configPath string) (*BouncerConfig, error) {
-
 	configBuff, err := ioutil.ReadFile(configPath)
 
 	if err != nil {

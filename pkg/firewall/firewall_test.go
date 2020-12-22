@@ -23,47 +23,78 @@ func TestBouncer_getRuleToUpdate(t *testing.T) {
 			rules: []*models.FirewallRule{{
 				Name: "test-rule-dummy",
 				SourceRanges: map[string]bool{
-					"1.0.0.0": true,
-					"1.1.0.0": true,
+					"1.0.0.0/32": true,
+					"1.1.0.0/32": true,
 				},
 			}},
 		},
-		"full": {
+		"full_create_new": {
 			rules: []*models.FirewallRule{{
 				Name: "test-rule-dummy",
 				SourceRanges: map[string]bool{
-					"1.0.0.0": true,
-					"1.1.0.0": true,
-					"1.1.1.0": true,
+					"1.0.0.0/32": true,
+					"1.1.0.0/32": true,
+					"1.1.1.0/32": true,
 				},
 			}},
 		},
+		"full_fail": {
+			rules: []*models.FirewallRule{{
+				Name: "test-rule-dummy",
+				SourceRanges: map[string]bool{
+					"1.0.0.0/32": true,
+					"1.1.0.0/32": true,
+					"1.1.1.0/32": true,
+				},
+			},
+				{
+					Name: "test-rule-dummy2",
+					SourceRanges: map[string]bool{
+						"1.0.0.0/32": true,
+						"1.1.0.0/32": true,
+						"1.1.1.0/32": true,
+					},
+				},
+			},
+		},
 	}
-	var fakeClient, _ = testingUtils.NewEmptyClient("test", "network")
+	var fakeClient, _ = testingUtils.NewEmptyClient()
 	var f = &Bouncer{fakeClient, "test-rule"}
 	t.Run("empty", func(t *testing.T) {
-		rule, rules := f.getRuleToUpdate(tests["empty"].rules)
+		rule, rules, _ := f.getRuleToUpdate(tests["empty"].rules)
 		assert.Contains(t, rule.Name, f.RuleNamePrefix)
 		assert.Regexp(t, "^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$", rule.Name)
 		fmt.Printf("rule name: %s", rule.Name)
+		assert.Equal(t, 1, len(rules))
 		assert.Equal(t, rules[0].Name, rule.Name)
 		assert.Equal(t, models.New, rule.State)
 	})
 	t.Run("existing", func(t *testing.T) {
-		rule, _ := f.getRuleToUpdate(tests["existing"].rules)
+		rule, rules, _ := f.getRuleToUpdate(tests["existing"].rules)
 		assert.Equal(t, "test-rule-dummy", rule.Name)
+		assert.Equal(t, 1, len(rules))
 		assert.Equal(t, models.Modified, rule.State)
 	})
-	t.Run("full", func(t *testing.T) {
-		rule, _ := f.getRuleToUpdate(tests["full"].rules)
+	t.Run("full_create_new", func(t *testing.T) {
+		rule, rules, _ := f.getRuleToUpdate(tests["full_create_new"].rules)
 		assert.NotEqual(t, "test-rule-dummy", rule.Name)
+		assert.Equal(t, 2, len(rules))
 		assert.Contains(t, rule.Name, f.RuleNamePrefix)
 		assert.Equal(t, models.New, rule.State)
+	})
+	t.Run("full_fail", func(t *testing.T) {
+		rule, rules, err := f.getRuleToUpdate(tests["full_fail"].rules)
+		if (err != nil) != true {
+			t.Errorf("getRuleToUpdate should throw error when rules at max capacity")
+		}
+		assert.Nil(t, rule)
+		assert.Equal(t, 2, len(rules))
+		assert.Equal(t, tests["full_fail"].rules, rules)
 	})
 }
 
 func TestAddSourceRangeToEmptyRules(t *testing.T) {
-	var fakeClient, _ = testingUtils.NewEmptyClient("test", "network")
+	var fakeClient, _ = testingUtils.NewEmptyClient()
 	var f = &Bouncer{fakeClient, "test-rule"}
 	var rules []*models.FirewallRule
 	source1 := "0.0.0.1"
@@ -81,8 +112,8 @@ func TestBouncer_Update(t *testing.T) {
 	type args struct {
 		decisionStream *csmodels.DecisionsStreamResponse
 	}
-	clientEmpty, _ := testingUtils.NewEmptyClient("empty_project", "network")
-	clientOneRule, _ := testingUtils.NewClientExistingRules("onerule_project", "network")
+	clientEmpty, _ := testingUtils.NewEmptyClient()
+	clientOneRule, _ := testingUtils.NewClientExistingRules()
 
 	source1 := "0.0.0.1"
 	source2 := "0.0.0.2"
@@ -144,7 +175,7 @@ func Test_deleteSourceRanges(t *testing.T) {
 			rules: []*models.FirewallRule{{
 				Name: "test-rule-1",
 				SourceRanges: map[string]bool{
-					"1.0.0.0": true,
+					"1.0.0.0/32": true,
 				},
 			}},
 			decisions: []*csmodels.Decision{{Value: &source1}},
@@ -153,8 +184,8 @@ func Test_deleteSourceRanges(t *testing.T) {
 			rules: []*models.FirewallRule{{
 				Name: "test-rule-1",
 				SourceRanges: map[string]bool{
-					"1.0.0.0": true,
-					"1.1.1.0": true,
+					"1.0.0.0/32": true,
+					"1.1.1.0/32": true,
 				},
 			}},
 			decisions: []*csmodels.Decision{{Value: &source2}},

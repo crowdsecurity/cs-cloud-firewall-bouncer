@@ -11,4 +11,8 @@ type GCPConfig struct {
 }
 
 type AWSConfig struct {
+	Region            string `yaml:"region"`
+	FirewallPolicy    string `yaml:"firewall_policy"`
+	Capacity          int    `yaml:"capacity"`
+	RuleGroupPriority int    `yaml:"rule_group_priority"`
 }

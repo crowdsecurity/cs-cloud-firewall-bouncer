@@ -24,7 +24,7 @@ func (f *Bouncer) Update(decisionStream *csmodels.DecisionsStreamResponse) error
 	}
 	deleteSourceRanges(rules, decisionStream.Deleted)
 	rules = f.addSourceRanges(rules, decisionStream.New)
-	err = f.updateGCPFirewallRules(rules)
+	err = f.updateProviderFirewallRules(rules)
 	if err != nil {
 		return err
 	}
@@ -44,17 +44,18 @@ func deleteSourceRanges(rules []*models.FirewallRule, decisions []*csmodels.Deci
 func (f *Bouncer) addSourceRanges(rules []*models.FirewallRule, decisions []*csmodels.Decision) []*models.FirewallRule {
 	log.Debugf("Adding source ranges")
 	for _, decision := range decisions {
-		log.Debugf("Processiong decision %#v", decision)
+		log.Debugf("Processiong decision %v", *decision.Value)
 		rules = f.addSourceRangeToRules(rules, decision)
 	}
 	return rules
 }
 
 func deleteSourceRange(rules []*models.FirewallRule, source string) {
+	cidr := models.GetCIDR(source)
 	for _, rule := range rules {
-		if rule.SourceRanges[source] {
-			log.Debugf("Deleting %v from %v", source, rule.Name)
-			delete(rule.SourceRanges, source)
+		if rule.SourceRanges[cidr] {
+			log.Debugf("Deleting %v from %v", cidr, rule.Name)
+			delete(rule.SourceRanges, cidr)
 			rule.State = models.Modified
 		}
 	}
@@ -72,32 +73,38 @@ func sourceExists(rules []*models.FirewallRule, source string) bool {
 func (f *Bouncer) addSourceRangeToRules(rules []*models.FirewallRule, decision *csmodels.Decision) []*models.FirewallRule {
 
 	source := decision.Value
-	if sourceExists(rules, *source) {
-		log.Debugf("%v already exist", *source)
+	cidr := models.GetCIDR(*source)
+	if sourceExists(rules, cidr) {
+		log.Debugf("%v already exist", cidr)
 		return rules
 	}
-	log.Debugf("Adding %v to rules", *source)
-	rule, rules := f.getRuleToUpdate(rules)
-	rule.SourceRanges[*(decision.Value)] = true
-	log.Debugf("Added %v to %v", *source, rule.Name)
+	log.Debugf("Adding %v to rules", cidr)
+	rule, rules, err := f.getRuleToUpdate(rules)
+	if err != nil {
+		log.Warning(err)
+		return rules
+	}
+	rule.SourceRanges[cidr] = true
+	log.Debugf("Added %v to %v", cidr, rule.Name)
 	return rules
 }
 
-func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.FirewallRule, []*models.FirewallRule) {
-	max := f.Client.MaxIpsPerRule()
+func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.FirewallRule, []*models.FirewallRule, error) {
+	max := f.Client.MaxSourcesPerRule()
 	currentRuleMax := 0
 	ruleToUpdate := &models.FirewallRule{
 		Name: "blank",
 	}
 	if len(rules) == 0 {
+		log.Debugf("no existing rule, we need to create a new one")
 		ruleToUpdate = f.genNewRule()
 		rules = append(rules, ruleToUpdate)
-		return ruleToUpdate, rules
+		return ruleToUpdate, rules, nil
 	}
 	// Find the rule that has the most source to fill up
 	for _, rule := range rules {
 		count := len(rule.SourceRanges)
-		if count > currentRuleMax && count < max {
+		if count >= currentRuleMax && count < max {
 			currentRuleMax = count
 			ruleToUpdate = rule
 			if ruleToUpdate.State == "" {
@@ -105,12 +112,15 @@ func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.Firewal
 			}
 		}
 	}
-	// Rules are full, we need to create a new one
 	if ruleToUpdate.Name == "blank" {
+		log.Infof("rules are full, we need to create a new one")
+		if len(rules) >= f.Client.MaxRules() {
+			return nil, rules, fmt.Errorf("can't create a new rule, at maximum capacity")
+		}
 		ruleToUpdate = f.genNewRule()
 		rules = append(rules, ruleToUpdate)
 	}
-	return ruleToUpdate, rules
+	return ruleToUpdate, rules, nil
 }
 
 // genNewRuleName generates a new rule name by appending 2 random words to the rule name prefix.
@@ -128,11 +138,11 @@ func (f *Bouncer) genNewRule() *models.FirewallRule {
 	}
 }
 
-func (f *Bouncer) updateGCPFirewallRules(rules []*models.FirewallRule) error {
+func (f *Bouncer) updateProviderFirewallRules(rules []*models.FirewallRule) error {
 	if len(rules) == 0 {
 		return nil
 	}
-	log.Debugf("Updating GCP firewall rules")
+	log.Debugf("Updating firewall rules")
 	for _, rule := range rules {
 		log.Debugf("Processing rule %#v", *rule)
 		switch rule.State {
@@ -141,20 +151,20 @@ func (f *Bouncer) updateGCPFirewallRules(rules []*models.FirewallRule) error {
 			if err != nil {
 				return err
 			}
-			break
 		case models.Modified:
-			err := f.updateGCPRule(rule)
+			err := f.updateRule(rule)
 			if err != nil {
 				return err
 			}
-			break
+		default:
+			log.Debugf("state did not change, results in noop")
 		}
 	}
 	return nil
 }
 
-func (f *Bouncer) updateGCPRule(rule *models.FirewallRule) error {
-	log.Debugf("Updating GCP firewall rule %v", rule.Name)
+func (f *Bouncer) updateRule(rule *models.FirewallRule) error {
+	log.Debugf("Updating firewall rule %v", rule.Name)
 	if len(rule.SourceRanges) == 0 {
 		err := f.Client.DeleteRule(rule)
 		return err

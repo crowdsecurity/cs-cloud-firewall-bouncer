@@ -49,3 +49,36 @@ func TestConvertSourceRangesSliceToMap(t *testing.T) {
 		})
 	}
 }
+
+func TestGetCIDR(t *testing.T) {
+	type args struct {
+		source string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "ipv4_to_cidr",
+			args: args{
+				"1.2.3.4",
+			},
+			want: "1.2.3.4/32",
+		},
+		{
+			name: "cidr_to_cidr",
+			args: args{
+				"1.2.3.4/32",
+			},
+			want: "1.2.3.4/32",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetCIDR(tt.args.source); got != tt.want {
+				t.Errorf("GetCIDR() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

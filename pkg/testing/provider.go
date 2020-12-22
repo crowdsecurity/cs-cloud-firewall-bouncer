@@ -1,32 +1,26 @@
 package testing
 
 import (
-	"net/http"
-
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/models"
 )
 
-type FakeClientEmpty struct {
-	Client  *http.Client
-	Project string
-	Network string
-}
+type FakeClientEmpty struct{}
 
 func (c *FakeClientEmpty) GetProviderName() string {
 	return "fake-client-empty"
 }
 
-func NewEmptyClient(project string, network string) (*FakeClientEmpty, error) {
+func NewEmptyClient() (*FakeClientEmpty, error) {
 
-	return &FakeClientEmpty{
-		Client:  nil,
-		Project: project,
-		Network: network,
-	}, nil
+	return &FakeClientEmpty{}, nil
 }
 
-func (c *FakeClientEmpty) MaxIpsPerRule() int {
+func (c *FakeClientEmpty) MaxSourcesPerRule() int {
 	return 3
+}
+
+func (c *FakeClientEmpty) MaxRules() int {
+	return 2
 }
 
 func (c *FakeClientEmpty) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error) {
@@ -46,26 +40,22 @@ func (c *FakeClientEmpty) PatchRule(rule *models.FirewallRule) error {
 }
 
 type FakeClientExistingRules struct {
-	Client  *http.Client
-	Project string
-	Network string
 }
 
 func (c *FakeClientExistingRules) GetProviderName() string {
 	return "fake-client-existing-rules"
 }
 
-func NewClientExistingRules(project string, network string) (*FakeClientExistingRules, error) {
+func NewClientExistingRules() (*FakeClientExistingRules, error) {
 
-	return &FakeClientExistingRules{
-		Client:  nil,
-		Project: project,
-		Network: network,
-	}, nil
+	return &FakeClientExistingRules{}, nil
 }
 
-func (c *FakeClientExistingRules) MaxIpsPerRule() int {
+func (c *FakeClientExistingRules) MaxSourcesPerRule() int {
 	return 6
+}
+func (c *FakeClientExistingRules) MaxRules() int {
+	return 2
 }
 
 func (c *FakeClientExistingRules) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error) {
