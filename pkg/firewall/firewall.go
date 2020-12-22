@@ -113,8 +113,8 @@ func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.Firewal
 	return ruleToUpdate, rules
 }
 
+// genNewRuleName generates a new rule name by appending 2 random words to the rule name prefix.
 func (f *Bouncer) genNewRuleName() string {
-
 	randomWords := diceware.MustGenerate(2)
 	r := fmt.Sprintf("%s-%s", f.RuleNamePrefix, strings.ToLower(strings.Join(randomWords, "-")))
 	return r

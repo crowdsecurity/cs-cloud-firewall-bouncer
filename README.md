@@ -106,6 +106,15 @@ api_url: <API_URL> # when install, default is "localhost:8080"
 api_key: <API_KEY> # Add your API key generated with `cscli bouncers add --name <bouncer_name>`
 ```
 
+### Rule name prefix requirements
+
+The rule name generated must comply with [RFC1035](https://tools.ietf.org/html/rfc1035).
+Since two random words (maximum 19 characters) are appended to the rule name prefix to
+create unique rule names, this checks that the rule name prefix be 1-44 characters long
+and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)\$. The first character
+must be a lowercase letter, and all following characters must be a dash, lowercase letter, or
+digit.
+
 ## Authentication
 
 ### GCP
