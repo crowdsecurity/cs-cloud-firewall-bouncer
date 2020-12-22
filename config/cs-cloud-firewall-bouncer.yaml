@@ -1,7 +1,14 @@
 cloud_providers:
   gcp:
+    disabled: ${GCP_DISABLED}
     project_id: ${GCP_PROJECT_ID}
     network: ${GCP_NETWORK_ID}
+  aws:
+    disabled: ${AWS_DISABLED}
+    region: ${AWS_REGION}
+    firewall_policy: ${AWS_FIREWALL_POLICY}
+    capacity: ${AWS_CAPACITY}
+    rule_group_priority: ${AWS_RULE_GROUP_PRIORITY}
 rule_name_prefix: ${RULE_NAME_PREFIX}
 update_frequency: 10s
 daemonize: true
