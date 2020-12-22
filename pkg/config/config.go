@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type bouncerConfig struct {
+type BouncerConfig struct {
 	CloudProviders  models.CloudProviders `yaml:"cloud_providers"`
 	RuleNamePrefix  string                `yaml:"rule_name_prefix"`
 	UpdateFrequency string                `yaml:"update_frequency"`
@@ -41,28 +41,28 @@ func checkRuleNamePrefixValid(ruleNamePrefix string) error {
 	return nil
 }
 
-func newConfig(configPath string) (*bouncerConfig, error) {
+func NewConfig(configPath string) (*BouncerConfig, error) {
 	var LogOutput *lumberjack.Logger //io.Writer
 
-	config := &bouncerConfig{}
+	config := &BouncerConfig{}
 
 	configBuff, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		return &bouncerConfig{}, fmt.Errorf("failed to read %s : %v", configPath, err)
+		return &BouncerConfig{}, fmt.Errorf("failed to read %s : %v", configPath, err)
 	}
 
 	if err := yaml.UnmarshalStrict(configBuff, &config); err != nil {
-		return &bouncerConfig{}, fmt.Errorf("failed to unmarshal %s : %v", configPath, err)
+		return &BouncerConfig{}, fmt.Errorf("failed to unmarshal %s : %v", configPath, err)
 	}
 
 	config.RuleNamePrefix = strings.ToLower(config.RuleNamePrefix)
 
 	if config.RuleNamePrefix == "" {
-		return &bouncerConfig{}, fmt.Errorf("rule_name_prefix must be specified")
+		return &BouncerConfig{}, fmt.Errorf("rule_name_prefix must be specified")
 	}
 
 	if err := checkRuleNamePrefixValid(config.RuleNamePrefix); err != nil {
-		return &bouncerConfig{}, err
+		return &BouncerConfig{}, err
 	}
 
 	/*Configure logging*/
@@ -83,7 +83,7 @@ func newConfig(configPath string) (*bouncerConfig, error) {
 		log.SetOutput(LogOutput)
 		log.SetFormatter(&log.TextFormatter{TimestampFormat: "02-01-2006 15:04:05", FullTimestamp: true})
 	} else if config.LogMode != "stdout" {
-		return &bouncerConfig{}, fmt.Errorf("log mode '%s' unknown, expecting 'file' or 'stdout'", config.LogMode)
+		return &BouncerConfig{}, fmt.Errorf("log mode '%s' unknown, expecting 'file' or 'stdout'", config.LogMode)
 	}
 	return config, nil
 }

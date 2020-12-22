@@ -9,6 +9,7 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	csbouncer "github.com/crowdsecurity/go-cs-bouncer"
+	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/config"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/firewall"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/models"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/providers"
@@ -72,7 +73,7 @@ func handleSignals(firewallBouncers []*firewall.Bouncer) {
 	os.Exit(code)
 }
 
-func getProviderClients(config bouncerConfig) ([]providers.CloudClient, error) {
+func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, error) {
 	cloudClients := []providers.CloudClient{}
 	if (models.GCPConfig{}) != config.CloudProviders.GCP {
 		gcpClient, err := gcp.NewClient(&config.CloudProviders.GCP)
@@ -96,7 +97,7 @@ func getProviderClients(config bouncerConfig) ([]providers.CloudClient, error) {
 	return cloudClients, nil
 }
 
-func getFirewallBouncers(config bouncerConfig) ([]*firewall.Bouncer, error) {
+func getFirewallBouncers(config config.BouncerConfig) ([]*firewall.Bouncer, error) {
 	clients, err := getProviderClients(config)
 	if err != nil {
 		log.Fatalf("unable to get provider client: %s", err.Error())
@@ -121,7 +122,7 @@ func main() {
 		log.Fatalf("configuration file is required")
 	}
 
-	config, err := newConfig(*configPath)
+	config, err := config.NewConfig(*configPath)
 	if err != nil {
 		log.Fatalf("unable to load configuration: %s", err)
 	}
