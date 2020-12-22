@@ -111,7 +111,7 @@ func getFirewallBouncers(config bouncerConfig) ([]*firewall.Bouncer, error) {
 
 func main() {
 	var err error
-	log.Infof("%s", name)
+	log.Infof("%s %s", name, version.Version)
 	configPath := flag.String("c", "", "path to config file")
 	verbose := flag.Bool("v", false, "set verbose mode")
 

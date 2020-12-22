@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
+	"strings"
 
 	"github.com/crowdsecurity/crowdsec/pkg/types"
 	log "github.com/sirupsen/logrus"
@@ -24,6 +26,23 @@ type bouncerConfig struct {
 	APIKey          string                `yaml:"api_key"`
 }
 
+/* checkRuleNamePrefixValid validates that the rule name prefix meets the following requirements:
+
+- All lower case characters
+
+- First character is a letter
+
+- Total of 42 alphanumeric characters, including the character "-"
+*/
+func checkRuleNamePrefixValid(ruleNamePrefix string) error {
+	re := regexp.MustCompile(`^(?:[a-z](?:[-a-z0-9]{0,41})?)$`)
+	match := re.MatchString(ruleNamePrefix)
+	if !match {
+		return fmt.Errorf("rule_name_prefix %s does not match the following regex: %s", ruleNamePrefix, re.String())
+	}
+	return nil
+}
+
 func newConfig(configPath string) (*bouncerConfig, error) {
 	var LogOutput *lumberjack.Logger //io.Writer
 
@@ -34,13 +53,18 @@ func newConfig(configPath string) (*bouncerConfig, error) {
 		return &bouncerConfig{}, fmt.Errorf("failed to read %s : %v", configPath, err)
 	}
 
-	err = yaml.UnmarshalStrict(configBuff, &config)
-	if err != nil {
+	if err := yaml.UnmarshalStrict(configBuff, &config); err != nil {
 		return &bouncerConfig{}, fmt.Errorf("failed to unmarshal %s : %v", configPath, err)
 	}
 
+	config.RuleNamePrefix = strings.ToLower(config.RuleNamePrefix)
+
 	if config.RuleNamePrefix == "" {
 		return &bouncerConfig{}, fmt.Errorf("rule_name_prefix must be specified")
+	}
+
+	if err := checkRuleNamePrefixValid(config.RuleNamePrefix); err != nil {
+		return &bouncerConfig{}, err
 	}
 
 	/*Configure logging*/
