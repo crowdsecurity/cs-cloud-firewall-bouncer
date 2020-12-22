@@ -1,16 +1,4 @@
-# CrowdSec Cloud Firewall Bouncer
-
-Bouncer for cloud firewalls to use with [Crowdsec](https://github.com/crowdsecurity/crowdsec).
-
-:warning: This is not an official Crowdsec bouncer.
-
-The Cloud Firewall Bouncer will periodically fetch new and expired/removed decisions from the CrowdSec Local API and update cloud firewall rules accordingly.
-
-Supported cloud providers:
-
-- Google Cloud Platform (GCP) :heavy_check_mark:
-
-## How to use this bouncer in Docker
+# How to use this bouncer in Docker
 
 ## Example with GCP
 
