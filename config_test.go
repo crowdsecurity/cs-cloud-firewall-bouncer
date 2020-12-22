@@ -42,14 +42,14 @@ func Test_checkRuleNamePrefixValid(t *testing.T) {
 		{
 			name: "too_many_chars",
 			args: args{
-				"abcdefghijklmnnopqrstuvwxyz-0123456789abcde",
+				"abcdefghijklmnnopqrstuvwxyz-0123456789abcdefg",
 			},
 			wantErr: true,
 		},
 		{
 			name: "limit_chars",
 			args: args{
-				"abcdefghijklmnnopqrstuvwxyz-0123456789abcd",
+				"abcdefghijklmnnopqrstuvwxyz-0123456789abcdef",
 			},
 			wantErr: false,
 		},

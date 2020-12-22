@@ -27,13 +27,13 @@ type bouncerConfig struct {
 }
 
 // checkRuleNamePrefixValid validates that the rule name prefix complies specific requirements.
-// The rule name generated must comply with RFC1035. Since two random words (maximum 20 characters)
+// The rule name generated must comply with RFC1035. Since two random words (maximum 19 characters)
 // are appended to the rule name prefix to create unique rule names, this checks that
-// the rule name prefix be 1-42 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,41})?)$. The first
+// the rule name prefix be 1-44 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)$. The first
 // character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or
 // digit.
 func checkRuleNamePrefixValid(ruleNamePrefix string) error {
-	re := regexp.MustCompile(`^(?:[a-z](?:[-a-z0-9]{0,41})?)$`)
+	re := regexp.MustCompile(`^(?:[a-z](?:[-a-z0-9]{0,43})?)$`)
 	match := re.MatchString(ruleNamePrefix)
 	if !match {
 		return fmt.Errorf("rule_name_prefix %s does not match the following regex: %s", ruleNamePrefix, re.String())
