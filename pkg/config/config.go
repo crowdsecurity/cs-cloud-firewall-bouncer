@@ -41,18 +41,11 @@ func checkRuleNamePrefixValid(ruleNamePrefix string) error {
 	return nil
 }
 
-func NewConfig(configPath string) (*BouncerConfig, error) {
-	var LogOutput *lumberjack.Logger //io.Writer
+func GenerateConfig(configBuff []byte) (*BouncerConfig, error) {
 
 	config := &BouncerConfig{}
-
-	configBuff, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return &BouncerConfig{}, fmt.Errorf("failed to read %s : %v", configPath, err)
-	}
-
 	if err := yaml.UnmarshalStrict(configBuff, &config); err != nil {
-		return &BouncerConfig{}, fmt.Errorf("failed to unmarshal %s : %v", configPath, err)
+		return &BouncerConfig{}, fmt.Errorf("failed to unmarshal yaml config file: %v", err)
 	}
 
 	config.RuleNamePrefix = strings.ToLower(config.RuleNamePrefix)
@@ -66,13 +59,14 @@ func NewConfig(configPath string) (*BouncerConfig, error) {
 	}
 
 	/*Configure logging*/
-	if err = types.SetDefaultLoggerConfig(config.LogMode, config.LogDir, config.LogLevel); err != nil {
+	if err := types.SetDefaultLoggerConfig(config.LogMode, config.LogDir, config.LogLevel); err != nil {
 		log.Fatal(err.Error())
 	}
 	if config.LogMode == "file" {
 		if config.LogDir == "" {
 			config.LogDir = "/var/log/"
 		}
+		var LogOutput *lumberjack.Logger //io.Writer
 		LogOutput = &lumberjack.Logger{
 			Filename:   config.LogDir + "/cs-cloud-firewall-bouncer.log",
 			MaxSize:    500, //megabytes
@@ -86,4 +80,14 @@ func NewConfig(configPath string) (*BouncerConfig, error) {
 		return &BouncerConfig{}, fmt.Errorf("log mode '%s' unknown, expecting 'file' or 'stdout'", config.LogMode)
 	}
 	return config, nil
+}
+
+func NewConfig(configPath string) (*BouncerConfig, error) {
+
+	configBuff, err := ioutil.ReadFile(configPath)
+
+	if err != nil {
+		return &BouncerConfig{}, fmt.Errorf("failed to read %s : %v", configPath, err)
+	}
+	return GenerateConfig(configBuff)
 }
