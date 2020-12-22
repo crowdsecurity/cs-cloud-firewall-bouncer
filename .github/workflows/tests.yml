@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: make build && go get -u github.com/jandelgado/gcov2lcov
       - name: All tests
-        run: go test -coverprofile=coverage.out -covermode=atomic ./...
+        run: go test -v -coverprofile=coverage.out -covermode=count ./...
       - name: gcov2lcov
         uses: jandelgado/gcov2lcov-action@v1.0.2
         with:
