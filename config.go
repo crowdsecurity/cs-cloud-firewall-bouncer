@@ -26,14 +26,12 @@ type bouncerConfig struct {
 	APIKey          string                `yaml:"api_key"`
 }
 
-/* checkRuleNamePrefixValid validates that the rule name prefix meets the following requirements:
-
-- All lower case characters
-
-- First character is a letter
-
-- Total of 42 alphanumeric characters, including the character "-"
-*/
+// checkRuleNamePrefixValid validates that the rule name prefix complies specific requirements.
+// The rule name generated must comply with RFC1035. Since two random words (maximum 20 characters)
+// are appended to the rule name prefix to create unique rule names, this checks that
+// the rule name prefix be 1-42 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,41})?)$. The first
+// character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or
+// digit.
 func checkRuleNamePrefixValid(ruleNamePrefix string) error {
 	re := regexp.MustCompile(`^(?:[a-z](?:[-a-z0-9]{0,41})?)$`)
 	match := re.MatchString(ruleNamePrefix)
