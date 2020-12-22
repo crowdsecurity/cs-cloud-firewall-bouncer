@@ -75,15 +75,14 @@ func handleSignals(firewallBouncers []*firewall.Bouncer) {
 
 func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, error) {
 	cloudClients := []providers.CloudClient{}
-	if (models.GCPConfig{}) != config.CloudProviders.GCP {
+	if (models.GCPConfig{}) != config.CloudProviders.GCP && !config.CloudProviders.GCP.Disabled {
 		gcpClient, err := gcp.NewClient(&config.CloudProviders.GCP)
 		if err != nil {
 			return nil, err
 		}
 		cloudClients = append(cloudClients, gcpClient)
 	}
-	if (models.AWSConfig{}) != config.CloudProviders.AWS {
-		// @TODO: Implement AWS Network Firewall
+	if (models.AWSConfig{}) != config.CloudProviders.AWS && !config.CloudProviders.AWS.Disabled {
 		awsClient, err := aws.NewClient(&config.CloudProviders.AWS)
 		if err != nil {
 			return nil, err
@@ -91,8 +90,8 @@ func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, e
 		cloudClients = append(cloudClients, awsClient)
 	}
 	if len(cloudClients) == 0 {
-		// @TODO: Implement AWS Network Firewall, AWS WAF Firewall, Azure, GCP Cloud Armor
-		return nil, fmt.Errorf("Provider must be configured")
+		// @TODO: Implement AWS WAF Firewall, Azure, GCP Cloud Armor
+		return nil, fmt.Errorf("At least one cloud provider must be configured")
 	}
 	return cloudClients, nil
 }

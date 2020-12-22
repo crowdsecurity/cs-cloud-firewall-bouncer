@@ -31,8 +31,11 @@ type BouncerConfig struct {
 // are appended to the rule name prefix to create unique rule names, this checks that
 // the rule name prefix be 1-44 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)$. The first
 // character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or
-// digit.
+// digit. The name cannot contain two consecutive dash ('-') characters.
 func checkRuleNamePrefixValid(ruleNamePrefix string) error {
+	if strings.Contains(ruleNamePrefix, "--") {
+		return fmt.Errorf("rule_name_prefix %s must not have two consecutive dash ('-') characters", ruleNamePrefix)
+	}
 	re := regexp.MustCompile(`^(?:[a-z](?:[-a-z0-9]{0,43})?)$`)
 	match := re.MatchString(ruleNamePrefix)
 	if !match {

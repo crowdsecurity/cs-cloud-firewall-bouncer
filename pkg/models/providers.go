@@ -6,11 +6,13 @@ type CloudProviders struct {
 }
 
 type GCPConfig struct {
+	Disabled  bool   `yaml:"disabled"`
 	ProjectID string `yaml:"project_id"`
 	Network   string `yaml:"network"`
 }
 
 type AWSConfig struct {
+	Disabled          bool   `yaml:"disabled"`
 	Region            string `yaml:"region"`
 	FirewallPolicy    string `yaml:"firewall_policy"`
 	Capacity          int    `yaml:"capacity"`

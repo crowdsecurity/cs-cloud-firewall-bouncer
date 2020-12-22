@@ -46,6 +46,13 @@ func Test_checkRuleNamePrefixValid(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "invalid_twodash",
+			args: args{
+				"test--rule",
+			},
+			wantErr: true,
+		},
+		{
 			name: "too_many_chars",
 			args: args{
 				"abcdefghijklmnnopqrstuvwxyz-0123456789abcdefg",
