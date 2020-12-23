@@ -1,0 +1,17 @@
+name: integration-tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build
+    runs-on: jrei/systemd-debian
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Test install script
+        run: bash ./testing/integration/scripts/test-install.sh
