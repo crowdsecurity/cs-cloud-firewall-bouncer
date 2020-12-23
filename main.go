@@ -44,15 +44,11 @@ func handleSignals(firewallBouncers []*firewall.Bouncer) {
 			switch s {
 			// kill -SIGTERM XXXX
 			case syscall.SIGABRT:
-				log.Printf("Received SIGABRT")
 				fallthrough
 			case syscall.SIGINT:
-				log.Printf("Received SIGINT")
 				fallthrough
 			case syscall.SIGTERM:
-				log.Printf("Received SIGTERM")
 				for _, fb := range firewallBouncers {
-					log.Printf("Trying to terminate bouncer")
 					if err := termHandler(s, fb); err != nil {
 						log.Errorf("shutdown fail: %s", err)
 						exitChan <- 1
@@ -69,7 +65,7 @@ func handleSignals(firewallBouncers []*firewall.Bouncer) {
 			code = 1
 		}
 	}
-	log.Infof("Shutting down bouncer service")
+	log.Infof("shutting down bouncer service")
 	os.Exit(code)
 }
 
@@ -91,7 +87,7 @@ func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, e
 	}
 	if len(cloudClients) == 0 {
 		// @TODO: Implement AWS WAF Firewall, Azure, GCP Cloud Armor
-		return nil, fmt.Errorf("At least one cloud provider must be configured")
+		return nil, fmt.Errorf("at least one cloud provider must be configured")
 	}
 	return cloudClients, nil
 }
@@ -172,7 +168,7 @@ func main() {
 	if config.Daemon == true {
 		sent, err := daemon.SdNotify(false, "READY=1")
 		if !sent && err != nil {
-			log.Errorf("Failed to notify: %v", err)
+			log.Errorf("failed to notify: %s", err)
 		}
 	}
 	handleSignals(firewallBouncers)

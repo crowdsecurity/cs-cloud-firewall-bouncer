@@ -55,6 +55,7 @@ func assignDefault(config *models.AWSConfig) {
 
 // NewClient creates a new AWS client
 func NewClient(config *models.AWSConfig) (*Client, error) {
+	log.Infof("creating client for %s", providerName)
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 		Config:            aws.Config{Region: aws.String(config.Region)},
@@ -172,6 +173,7 @@ func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 			rules = append(rules, &rule)
 		}
 	}
+	log.Infof("found %d rule(s)", len(rules))
 
 	return rules, nil
 }

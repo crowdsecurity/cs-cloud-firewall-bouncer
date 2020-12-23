@@ -62,7 +62,7 @@ func checkGCPConfig(config *models.GCPConfig) error {
 
 // NewClient creates a new GCP client
 func NewClient(config *models.GCPConfig) (*Client, error) {
-	log.Infof("Creating client for GCP")
+	log.Infof("creating client for %s", providerName)
 	err := checkGCPConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("error while checking GCP config: %s", err)
@@ -85,7 +85,7 @@ func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 		return nil, fmt.Errorf("unable to list firewall rules: %s", err)
 	}
 	var rules []*models.FirewallRule
-	log.Infof("found %d rule(s) in GCP", len(res.Items))
+	log.Infof("found %d rule(s)", len(res.Items))
 	for _, gcpRule := range res.Items {
 		log.Infof("%s: %#v", gcpRule.Name, gcpRule.SourceRanges)
 		rule := models.FirewallRule{

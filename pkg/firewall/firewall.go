@@ -78,7 +78,7 @@ func (f *Bouncer) addSourceRangeToRules(rules []*models.FirewallRule, decision *
 		log.Debugf("%s already exist", cidr)
 		return rules
 	}
-	log.Debugf("Adding %s to rules", cidr)
+	log.Debugf("adding %s to rules", cidr)
 	rule, rules, err := f.getRuleToUpdate(rules)
 	if err != nil {
 		log.Warning(err)
