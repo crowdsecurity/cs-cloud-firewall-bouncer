@@ -51,7 +51,7 @@ func checkGCPConfig(config *models.GCPConfig) error {
 		var err error
 		config.ProjectID, err = getProjectIDFromCredentials()
 		if err != nil || config.ProjectID == "" {
-			return fmt.Errorf("can't get project id from credentials: %v", err)
+			return fmt.Errorf("can't get project id from credentials: %s", err)
 		}
 	}
 	if config.Network == "" {

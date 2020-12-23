@@ -21,7 +21,7 @@ type GoogleComputeService struct {
 func NewGoogleComputeService() *GoogleComputeService {
 	svc, err := compute.NewService(context.Background())
 	if err != nil {
-		log.Fatalf("Unable to create new compute service: %v", err)
+		log.Fatalf("Unable to create new compute service: %s", err)
 	}
 	return &GoogleComputeService{svc}
 }

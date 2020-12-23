@@ -32,7 +32,7 @@ func (f *Bouncer) Update(decisionStream *csmodels.DecisionsStreamResponse) error
 }
 
 func deleteSourceRanges(rules []*models.FirewallRule, decisions []*csmodels.Decision) {
-	log.Debugf("Deleting source ranges")
+	log.Debugf("deleting source ranges")
 	if len(rules) == 0 {
 		return
 	}
@@ -42,9 +42,9 @@ func deleteSourceRanges(rules []*models.FirewallRule, decisions []*csmodels.Deci
 }
 
 func (f *Bouncer) addSourceRanges(rules []*models.FirewallRule, decisions []*csmodels.Decision) []*models.FirewallRule {
-	log.Debugf("Adding source ranges")
+	log.Debugf("adding source ranges")
 	for _, decision := range decisions {
-		log.Debugf("Processiong decision %v", *decision.Value)
+		log.Debugf("processiong decision %s", *decision.Value)
 		rules = f.addSourceRangeToRules(rules, decision)
 	}
 	return rules
@@ -54,7 +54,7 @@ func deleteSourceRange(rules []*models.FirewallRule, source string) {
 	cidr := models.GetCIDR(source)
 	for _, rule := range rules {
 		if rule.SourceRanges[cidr] {
-			log.Debugf("Deleting %v from %v", cidr, rule.Name)
+			log.Debugf("deleting %s from %s", cidr, rule.Name)
 			delete(rule.SourceRanges, cidr)
 			rule.State = models.Modified
 		}
@@ -75,17 +75,17 @@ func (f *Bouncer) addSourceRangeToRules(rules []*models.FirewallRule, decision *
 	source := decision.Value
 	cidr := models.GetCIDR(*source)
 	if sourceExists(rules, cidr) {
-		log.Debugf("%v already exist", cidr)
+		log.Debugf("%s already exist", cidr)
 		return rules
 	}
-	log.Debugf("Adding %v to rules", cidr)
+	log.Debugf("Adding %s to rules", cidr)
 	rule, rules, err := f.getRuleToUpdate(rules)
 	if err != nil {
 		log.Warning(err)
 		return rules
 	}
 	rule.SourceRanges[cidr] = true
-	log.Debugf("Added %v to %v", cidr, rule.Name)
+	log.Debugf("added %s to %s", cidr, rule.Name)
 	return rules
 }
 
@@ -142,9 +142,9 @@ func (f *Bouncer) updateProviderFirewallRules(rules []*models.FirewallRule) erro
 	if len(rules) == 0 {
 		return nil
 	}
-	log.Debugf("Updating firewall rules")
+	log.Debugf("updating firewall rules")
 	for _, rule := range rules {
-		log.Debugf("Processing rule %#v", *rule)
+		log.Debugf("processing rule %#v", *rule)
 		switch rule.State {
 		case models.New:
 			err := f.Client.CreateRule(rule)
@@ -164,7 +164,7 @@ func (f *Bouncer) updateProviderFirewallRules(rules []*models.FirewallRule) erro
 }
 
 func (f *Bouncer) updateRule(rule *models.FirewallRule) error {
-	log.Debugf("Updating firewall rule %v", rule.Name)
+	log.Debugf("updating firewall rule %s", rule.Name)
 	if len(rule.SourceRanges) == 0 {
 		err := f.Client.DeleteRule(rule)
 		return err
@@ -174,6 +174,6 @@ func (f *Bouncer) updateRule(rule *models.FirewallRule) error {
 }
 
 func (f *Bouncer) ShutDown() error {
-	log.Infof("Shutting down %s firewall bouncer", f.Client.GetProviderName())
+	log.Infof("shutting down %s firewall bouncer", f.Client.GetProviderName())
 	return nil
 }

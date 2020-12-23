@@ -48,7 +48,7 @@ func GenerateConfig(configBuff []byte) (*BouncerConfig, error) {
 
 	config := &BouncerConfig{}
 	if err := yaml.UnmarshalStrict(configBuff, &config); err != nil {
-		return &BouncerConfig{}, fmt.Errorf("failed to unmarshal yaml config file: %v", err)
+		return &BouncerConfig{}, fmt.Errorf("failed to unmarshal yaml config file: %s", err)
 	}
 
 	config.RuleNamePrefix = strings.ToLower(config.RuleNamePrefix)
@@ -89,7 +89,7 @@ func NewConfig(configPath string) (*BouncerConfig, error) {
 	configBuff, err := ioutil.ReadFile(configPath)
 
 	if err != nil {
-		return &BouncerConfig{}, fmt.Errorf("failed to read %s : %v", configPath, err)
+		return &BouncerConfig{}, fmt.Errorf("failed to read %s : %s", configPath, err)
 	}
 	return GenerateConfig(configBuff)
 }
