@@ -112,7 +112,7 @@ api_key: <API_KEY> # Add your API key generated with `cscli bouncers add --name 
 
 ### Rule name prefix requirements
 
-The rule name prefix be 1-44 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)\$. The first character
+The rule name prefix be 1-44 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)\$`. The first character
 must be a lowercase letter, and all following characters must be a dash, lowercase letter, or
 digit. The name cannot contain two consecutive dash ('-') characters.
 
