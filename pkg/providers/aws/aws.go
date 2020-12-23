@@ -3,11 +3,13 @@ package aws
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/networkfirewall"
 	"github.com/aws/aws-sdk-go/service/networkfirewall/networkfirewalliface"
+	backoff "github.com/cenkalti/backoff/v4"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/models"
 	"github.com/sirupsen/logrus"
 )
@@ -77,15 +79,14 @@ func (c *Client) getFirewallPolicy() *networkfirewall.DescribeFirewallPolicyOutp
 		FirewallPolicyName: &c.firewallPolicy,
 	})
 	if err != nil {
-		log.Panicf("ccan't get firewall policy: %s", err.Error())
+		log.Panicf("can't get firewall policy %s: %s", c.firewallPolicy, err)
 	}
 	return res
 }
 
 func (c *Client) addRuleToFirewallPolicy(ruleARN string, fp *networkfirewall.DescribeFirewallPolicyOutput) {
-	priority := int64(1)
 	newRuleRef := networkfirewall.StatelessRuleGroupReference{
-		Priority:    &priority,
+		Priority:    aws.Int64(int64(c.ruleGroupPriority)),
 		ResourceArn: &ruleARN,
 	}
 	rules := append(fp.FirewallPolicy.StatelessRuleGroupReferences, &newRuleRef)
@@ -98,12 +99,35 @@ func (c *Client) addRuleToFirewallPolicy(ruleARN string, fp *networkfirewall.Des
 	}
 	_, err := c.svc.UpdateFirewallPolicy(&input)
 	if err != nil {
-		log.Fatalf("Unable to update firewall policy %v: %v", fp.FirewallPolicyResponse.FirewallPolicyName, err.Error())
+		log.Fatalf("unable to update firewall policy %s: %s", *fp.FirewallPolicyResponse.FirewallPolicyName, err)
 	}
-	log.Infof("Update of firewall policy successful")
+	log.Infof("update of firewall policy %s successful", *fp.FirewallPolicyResponse.FirewallPolicyName)
 }
 
-func ConvertSourceMapToAWSSlice(sources map[string]bool) []*networkfirewall.Address {
+func (c *Client) removeRuleFromFirewallPolicy(ruleARN string, fp *networkfirewall.DescribeFirewallPolicyOutput) {
+	fpRulesRef := fp.FirewallPolicy.StatelessRuleGroupReferences
+	fpRulesRefLen := len(fpRulesRef)
+	for i, rule := range fpRulesRef {
+		if *rule.ResourceArn == ruleARN {
+			fpRulesRef[i] = fpRulesRef[fpRulesRefLen-1]
+		}
+	}
+	fpRulesRef = fpRulesRef[:fpRulesRefLen-1]
+	fp.FirewallPolicy.SetStatelessRuleGroupReferences(fpRulesRef)
+
+	input := networkfirewall.UpdateFirewallPolicyInput{
+		FirewallPolicyArn: fp.FirewallPolicyResponse.FirewallPolicyArn,
+		FirewallPolicy:    fp.FirewallPolicy,
+		UpdateToken:       fp.UpdateToken,
+	}
+	_, err := c.svc.UpdateFirewallPolicy(&input)
+	if err != nil {
+		log.Fatalf("unable to update firewall policy %s: %s", *fp.FirewallPolicyResponse.FirewallPolicyName, err)
+	}
+	log.Infof("successfully removed rule %s from firewall policy %s", ruleARN, *fp.FirewallPolicyResponse.FirewallPolicyName)
+}
+
+func convertSourceMapToAWSSlice(sources map[string]bool) []*networkfirewall.Address {
 	slice := []*networkfirewall.Address{}
 	for source := range sources {
 		log.Debugf("key: %s", source)
@@ -124,14 +148,14 @@ func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 				RuleGroupArn: ruleGroup.ResourceArn,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("can't describe rule  %s: %s", *ruleGroup.ResourceArn, err.Error())
+				return nil, fmt.Errorf("can't describe rule  %s: %s", *ruleGroup.ResourceArn, err)
 			}
 			if *res.RuleGroupResponse.RuleGroupStatus == networkfirewall.ResourceStatusDeleting {
-				log.Debugf("Skipping rule %s because it is being deleted", *res.RuleGroupResponse.RuleGroupName)
+				log.Debugf("skipping rule %s because it is being deleted", *res.RuleGroupResponse.RuleGroupName)
 				break
 			}
 			var sources []string
-			log.Debugf("Found rule %s", *res.RuleGroupResponse.RuleGroupName)
+			log.Debugf("found rule %s", *res.RuleGroupResponse.RuleGroupName)
 			if len(res.RuleGroup.RulesSource.StatelessRulesAndCustomActions.StatelessRules) > 0 {
 				for _, source := range res.RuleGroup.RulesSource.StatelessRulesAndCustomActions.StatelessRules[0].RuleDefinition.MatchAttributes.Sources {
 					sources = append(sources, *source.AddressDefinition)
@@ -150,14 +174,14 @@ func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 }
 
 func (c *Client) CreateRule(rule *models.FirewallRule) error {
-	log.Infof("Creating rule group %v with %#v", rule.Name, rule.SourceRanges)
+	log.Infof("creating rule group %s with %#v", rule.Name, rule.SourceRanges)
 	ruleType := networkfirewall.RuleGroupTypeStateless
 
 	awsRule := networkfirewall.StatelessRule{
 		Priority: aws.Int64(int64(c.ruleGroupPriority)),
 		RuleDefinition: &networkfirewall.RuleDefinition{
 			MatchAttributes: &networkfirewall.MatchAttributes{
-				Sources: ConvertSourceMapToAWSSlice(rule.SourceRanges),
+				Sources: convertSourceMapToAWSSlice(rule.SourceRanges),
 			},
 			Actions: []*string{aws.String("aws:drop")},
 		},
@@ -182,28 +206,54 @@ func (c *Client) CreateRule(rule *models.FirewallRule) error {
 	fp := c.getFirewallPolicy()
 	c.addRuleToFirewallPolicy(*rg.RuleGroupResponse.RuleGroupArn, fp)
 
-	log.Infof("Creation successful")
+	log.Infof("creation of rule group %s successful", rule.Name)
 	return nil
 }
 
-// DeleteRule implementation for AWS only empties the rule group instead of deleting it
-// This is to avoid removing the rule group from  the firewall policy
 func (c *Client) DeleteRule(rule *models.FirewallRule) error {
-	log.Infof("Deleting firewall rule %s", rule.Name)
-	return c.PatchRule(rule)
-}
-
-func (c *Client) PatchRule(rule *models.FirewallRule) error {
-	log.Infof("Patching firewall rule %v with %#v", rule.Name, rule.SourceRanges)
-	ruleType := networkfirewall.RuleGroupTypeStateless
+	log.Infof("deleting firewall rule %s", rule.Name)
 	res, err := c.svc.DescribeRuleGroup(&networkfirewall.DescribeRuleGroupInput{
 		RuleGroupName: &rule.Name,
-		Type:          &ruleType,
+		Type:          aws.String(networkfirewall.RuleGroupTypeStateless),
 	})
 	if err != nil {
 		return err
 	}
-	res.RuleGroup.RulesSource.StatelessRulesAndCustomActions.StatelessRules[0].RuleDefinition.MatchAttributes.Sources = ConvertSourceMapToAWSSlice(rule.SourceRanges)
+	fp := c.getFirewallPolicy()
+	c.removeRuleFromFirewallPolicy(*res.RuleGroupResponse.RuleGroupArn, fp)
+
+	input := networkfirewall.DeleteRuleGroupInput{
+		RuleGroupArn: res.RuleGroupResponse.RuleGroupArn,
+	}
+
+	// Deleting rule group too fast might fail because it it still being removed from the firewall policy.
+	// Since there does not seem to be any status state in the policy that indicates the completion, we
+	// simply retry using exponential backoff, up to 1 min.
+	tryToDeleteRuleGroup := func() error {
+		_, err := c.svc.DeleteRuleGroup(&input)
+		return err
+	}
+	exponentialBackoff := backoff.NewExponentialBackOff()
+	exponentialBackoff.MaxElapsedTime = 1 * time.Minute
+	err = backoff.Retry(tryToDeleteRuleGroup, exponentialBackoff)
+	if err != nil {
+		log.Fatalf("unable to delete firewall rule %s: %s", rule.Name, err)
+	}
+	log.Infof("delete successful")
+	return nil
+}
+
+func (c *Client) PatchRule(rule *models.FirewallRule) error {
+	log.Infof("patching firewall rule %s with %#v", rule.Name, rule.SourceRanges)
+	ruleType := networkfirewall.RuleGroupTypeStateless
+	res, err := c.svc.DescribeRuleGroup(&networkfirewall.DescribeRuleGroupInput{
+		RuleGroupName: &rule.Name,
+		Type:          aws.String(networkfirewall.RuleGroupTypeStateless),
+	})
+	if err != nil {
+		return err
+	}
+	res.RuleGroup.RulesSource.StatelessRulesAndCustomActions.StatelessRules[0].RuleDefinition.MatchAttributes.Sources = convertSourceMapToAWSSlice(rule.SourceRanges)
 
 	input := networkfirewall.UpdateRuleGroupInput{
 		RuleGroupName: &rule.Name,
@@ -213,8 +263,8 @@ func (c *Client) PatchRule(rule *models.FirewallRule) error {
 	}
 	_, err = c.svc.UpdateRuleGroup(&input)
 	if err != nil {
-		log.Fatalf("Unable to patch firewall rule %v: %v", rule.Name, err.Error())
+		log.Fatalf("unable to patch firewall rule %s: %s", rule.Name, err)
 	}
-	log.Infof("Patch successful")
+	log.Infof("patch of rule %s successful", rule.Name)
 	return nil
 }

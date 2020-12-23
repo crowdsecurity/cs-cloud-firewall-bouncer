@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/aws/aws-sdk-go v1.36.13
+	github.com/cenkalti/backoff/v4 v4.1.0
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/crowdsecurity/crowdsec v1.0.2
 	github.com/crowdsecurity/go-cs-bouncer v0.0.0-20201130114000-e5b8016e5bf3

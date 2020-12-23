@@ -18,7 +18,8 @@ type mockedAWSSvc struct {
 func (s *mockedAWSSvc) DescribeFirewallPolicy(*networkfirewall.DescribeFirewallPolicyInput) (*networkfirewall.DescribeFirewallPolicyOutput, error) {
 	return &networkfirewall.DescribeFirewallPolicyOutput{
 		FirewallPolicyResponse: &networkfirewall.FirewallPolicyResponse{
-			FirewallPolicyArn: aws.String("arn:aws:firewall-policy"),
+			FirewallPolicyName: aws.String("firewall-policy"),
+			FirewallPolicyArn:  aws.String("arn:aws:firewall-policy"),
 		},
 		FirewallPolicy: &networkfirewall.FirewallPolicy{
 			StatelessRuleGroupReferences: []*networkfirewall.StatelessRuleGroupReference{
@@ -40,6 +41,7 @@ func (s *mockedAWSSvc) DescribeRuleGroup(input *networkfirewall.DescribeRuleGrou
 	if input.RuleGroupArn != nil && *input.RuleGroupArn == "arn:aws:crowdsec-bingo-jumbo" || input.RuleGroupName != nil && *input.RuleGroupName == "crowdsec-bingo-jumbo" {
 		return &networkfirewall.DescribeRuleGroupOutput{
 			RuleGroupResponse: &networkfirewall.RuleGroupResponse{
+				RuleGroupArn:    aws.String("arn:aws:crowdsec-bingo-jumbo"),
 				RuleGroupName:   aws.String("crowdsec-bingo-jumbo"),
 				RuleGroupStatus: aws.String(networkfirewall.ResourceStatusActive),
 			},
@@ -74,6 +76,9 @@ func (s *mockedAWSSvc) DescribeRuleGroup(input *networkfirewall.DescribeRuleGrou
 }
 func (s *mockedAWSSvc) UpdateRuleGroup(*networkfirewall.UpdateRuleGroupInput) (*networkfirewall.UpdateRuleGroupOutput, error) {
 	return &networkfirewall.UpdateRuleGroupOutput{}, nil
+}
+func (s *mockedAWSSvc) DeleteRuleGroup(*networkfirewall.DeleteRuleGroupInput) (*networkfirewall.DeleteRuleGroupOutput, error) {
+	return &networkfirewall.DeleteRuleGroupOutput{}, nil
 }
 
 func (s *mockedAWSSvc) CreateRuleGroup(*networkfirewall.CreateRuleGroupInput) (*networkfirewall.CreateRuleGroupOutput, error) {
@@ -124,6 +129,19 @@ func TestDeleteRule(t *testing.T) {
 		SourceRanges: map[string]bool{},
 	}
 	_ = c.DeleteRule(&rule)
+}
+
+func TestPatchRule(t *testing.T) {
+
+	mockSvc := &mockedAWSSvc{}
+	c := Client{
+		svc: mockSvc,
+	}
+	rule := models.FirewallRule{
+		Name:         "crowdsec-bingo-jumbo",
+		SourceRanges: map[string]bool{},
+	}
+	_ = c.PatchRule(&rule)
 }
 
 func TestAssignDefaultConfig(t *testing.T) {
