@@ -61,7 +61,7 @@ func NewClient(config *models.AWSConfig) (*Client, error) {
 	}))
 	_, err := sess.Config.Credentials.Get()
 	if err != nil {
-		log.Errorf("error while loading credentials: %s", err)
+		return nil, fmt.Errorf("error while loading credentials: %s", err)
 	}
 	svc := networkfirewall.New(sess)
 	assignDefault(config)
@@ -74,14 +74,14 @@ func NewClient(config *models.AWSConfig) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) getFirewallPolicy() *networkfirewall.DescribeFirewallPolicyOutput {
+func (c *Client) getFirewallPolicy() (*networkfirewall.DescribeFirewallPolicyOutput, error) {
 	res, err := c.svc.DescribeFirewallPolicy(&networkfirewall.DescribeFirewallPolicyInput{
 		FirewallPolicyName: &c.firewallPolicy,
 	})
 	if err != nil {
-		log.Panicf("can't get firewall policy %s: %s", c.firewallPolicy, err)
+		return nil, fmt.Errorf("can't get firewall policy %s: %s", c.firewallPolicy, err)
 	}
-	return res
+	return res, nil
 }
 
 func (c *Client) addRuleToFirewallPolicy(ruleARN string, fp *networkfirewall.DescribeFirewallPolicyOutput) {
@@ -139,7 +139,10 @@ func convertSourceMapToAWSSlice(sources map[string]bool) []*networkfirewall.Addr
 
 func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error) {
 
-	fp := c.getFirewallPolicy()
+	fp, err := c.getFirewallPolicy()
+	if err != nil {
+		return nil, err
+	}
 
 	var rules []*models.FirewallRule
 	for _, ruleGroup := range fp.FirewallPolicy.StatelessRuleGroupReferences {
@@ -148,7 +151,7 @@ func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 				RuleGroupArn: ruleGroup.ResourceArn,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("can't describe rule  %s: %s", *ruleGroup.ResourceArn, err)
+				return nil, fmt.Errorf("unable to get rule group %s: %s", *ruleGroup.ResourceArn, err)
 			}
 			if *res.RuleGroupResponse.RuleGroupStatus == networkfirewall.ResourceStatusDeleting {
 				log.Debugf("skipping rule %s because it is being deleted", *res.RuleGroupResponse.RuleGroupName)
@@ -201,9 +204,12 @@ func (c *Client) CreateRule(rule *models.FirewallRule) error {
 		Type: &ruleType,
 	})
 	if err != nil {
+		return fmt.Errorf("unable to create rule group %s: %s", rule.Name, err)
+	}
+	fp, err := c.getFirewallPolicy()
+	if err != nil {
 		return err
 	}
-	fp := c.getFirewallPolicy()
 	c.addRuleToFirewallPolicy(*rg.RuleGroupResponse.RuleGroupArn, fp)
 
 	log.Infof("creation of rule group %s successful", rule.Name)
@@ -217,9 +223,12 @@ func (c *Client) DeleteRule(rule *models.FirewallRule) error {
 		Type:          aws.String(networkfirewall.RuleGroupTypeStateless),
 	})
 	if err != nil {
+		return fmt.Errorf("unable to get rule group %s: %s", rule.Name, err)
+	}
+	fp, err := c.getFirewallPolicy()
+	if err != nil {
 		return err
 	}
-	fp := c.getFirewallPolicy()
 	c.removeRuleFromFirewallPolicy(*res.RuleGroupResponse.RuleGroupArn, fp)
 
 	input := networkfirewall.DeleteRuleGroupInput{
@@ -237,7 +246,7 @@ func (c *Client) DeleteRule(rule *models.FirewallRule) error {
 	exponentialBackoff.MaxElapsedTime = 1 * time.Minute
 	err = backoff.Retry(tryToDeleteRuleGroup, exponentialBackoff)
 	if err != nil {
-		log.Fatalf("unable to delete firewall rule %s: %s", rule.Name, err)
+		return fmt.Errorf("unable to delete firewall rule %s: %s", rule.Name, err)
 	}
 	log.Infof("delete successful")
 	return nil
@@ -251,7 +260,7 @@ func (c *Client) PatchRule(rule *models.FirewallRule) error {
 		Type:          aws.String(networkfirewall.RuleGroupTypeStateless),
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to get rule group %s: %s", rule.Name, err)
 	}
 	res.RuleGroup.RulesSource.StatelessRulesAndCustomActions.StatelessRules[0].RuleDefinition.MatchAttributes.Sources = convertSourceMapToAWSSlice(rule.SourceRanges)
 
@@ -263,7 +272,7 @@ func (c *Client) PatchRule(rule *models.FirewallRule) error {
 	}
 	_, err = c.svc.UpdateRuleGroup(&input)
 	if err != nil {
-		log.Fatalf("unable to patch firewall rule %s: %s", rule.Name, err)
+		return fmt.Errorf("unable to patch firewall rule %s: %s", rule.Name, err)
 	}
 	log.Infof("patch of rule %s successful", rule.Name)
 	return nil
