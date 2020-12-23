@@ -6,9 +6,9 @@ cloud_providers:
   aws:
     disabled: false
     region: us-east1
-    firewall_policy: my-firewall-policy2
+    firewall_policy: my-firewall-policy
     capacity: 200
-    rule_group_priority: 100
+    rule_group_priority: 1
 rule_name_prefix: crowdsec
 update_frequency: 10s
 daemonize: true

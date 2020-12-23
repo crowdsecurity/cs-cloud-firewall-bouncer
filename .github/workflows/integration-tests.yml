@@ -7,9 +7,11 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    name: Build
-    runs-on: jrei/systemd-debian
+  test:
+    name: scripts
+    runs-on: ubuntu-latest
+    container:
+      image: jrei/systemd-debian
     steps:
       - name: Check out code
         uses: actions/checkout@v2
