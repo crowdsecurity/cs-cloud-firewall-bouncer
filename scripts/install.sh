@@ -5,8 +5,14 @@ CONFIG_DIR="/etc/crowdsec/cs-cloud-firewall-bouncer/"
 SYSTEMD_PATH_FILE="/etc/systemd/system/cs-cloud-firewall-bouncer.service"
 API_URL=""
 API_KEY=""
+GCP_DISABLED=true
 GCP_PROJECT_ID=""
 GCP_NETWORK_ID=""
+AWS_DISABLED=true
+AWS_REGION=""
+AWS_FIREWALL_POLICY=""
+AWS_CAPACITY=0
+AWS_RULE_GROUP_PRIORITY=0
 RULE_NAME_PREFIX="crowdsec"
 
 gen_lapi_config() {
@@ -24,10 +30,43 @@ gen_lapi_config() {
     esac
 }
 
-gen_cloud_config() {
+gen_providers_config() {
+    read -rp "Do you want to add GCP as a provider? [Y/n] " -e response
+    case $response in
+    [Nn]* )
+        echo "Disabling GCP"
+    ;;
+    * )
+        gen_gcp_config
+    ;;
+    esac
+    read -rp "Do you want to add AWS as a provider? [Y/n] " -e response
+    case $response in
+    [Nn]* )
+        echo "Disabling AWS"
+    ;;
+    * )
+        gen_aws_config
+    ;;
+    esac
+    if [[ ${GCP_DISABLED} == "true" && ${AWS_DISABLED} == "true" ]]; then
+        echo "At least one provider should be configured"
+        exit 1
+    fi
+    read -rp "Firewall rule name prefix: " -i $RULE_NAME_PREFIX -e RULE_NAME_PREFIX
+}
+
+gen_gcp_config() {
     read -rp "Google project ID: " -e GCP_PROJECT_ID
     read -rp "Network ID: " -e GCP_NETWORK_ID
-    read -rp "Firewall rule name prefix: " -i $RULE_NAME_PREFIX -e RULE_NAME_PREFIX
+    GCP_DISABLED=false
+}
+gen_aws_config() {
+    read -rp "AWS region: " -e AWS_REGION
+    read -rp "Firewall policy name: " -e AWS_FIREWALL_POLICY
+    read -rp "Capacity (leave empty for 1000): " -e AWS_CAPACITY
+    read -rp "Rule group priority (leave empty for 1): " -e AWS_RULE_GROUP_PRIORITY
+    AWS_DISABLED=false
 }
 
 install_bouncer() {
@@ -39,7 +78,9 @@ install_bouncer() {
 }
 
 gen_config_file() {
-    API_URL=${API_URL} API_KEY=${API_KEY} GCP_PROJECT_ID=${GCP_PROJECT_ID} GCP_NETWORK_ID=${GCP_NETWORK_ID} RULE_NAME_PREFIX=${RULE_NAME_PREFIX} envsubst < ./config/cs-cloud-firewall-bouncer.yaml > "${CONFIG_DIR}cs-cloud-firewall-bouncer.yaml"
+    GCP_DISABLED=${GCP_DISABLED} GCP_PROJECT_ID=${GCP_PROJECT_ID} GCP_NETWORK_ID=${GCP_NETWORK_ID} \
+    AWS_DISABLED=${AWS_DISABLED} AWS_REGION=${AWS_REGION} AWS_FIREWALL_POLICY=${AWS_FIREWALL_POLICY} AWS_CAPACITY=${AWS_CAPACITY} AWS_RULE_GROUP_PRIORITY=${AWS_RULE_GROUP_PRIORITY} \
+    API_URL=${API_URL} API_KEY=${API_KEY} RULE_NAME_PREFIX=${RULE_NAME_PREFIX} envsubst < ./config/cs-cloud-firewall-bouncer.yaml > "${CONFIG_DIR}cs-cloud-firewall-bouncer.yaml"
 }
 
 if ! [ $(id -u) = 0 ]; then
@@ -49,7 +90,7 @@ fi
 echo "Installing cs-cloud-firewall-bouncer"
 install_bouncer
 gen_lapi_config
-gen_cloud_config
+gen_providers_config
 gen_config_file
 systemctl enable cs-cloud-firewall-bouncer.service
 systemctl start cs-cloud-firewall-bouncer.service

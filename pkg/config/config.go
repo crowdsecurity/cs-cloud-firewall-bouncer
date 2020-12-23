@@ -31,8 +31,11 @@ type BouncerConfig struct {
 // are appended to the rule name prefix to create unique rule names, this checks that
 // the rule name prefix be 1-44 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)$. The first
 // character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or
-// digit.
+// digit. The name cannot contain two consecutive dash ('-') characters.
 func checkRuleNamePrefixValid(ruleNamePrefix string) error {
+	if strings.Contains(ruleNamePrefix, "--") {
+		return fmt.Errorf("rule_name_prefix %s must not have two consecutive dash ('-') characters", ruleNamePrefix)
+	}
 	re := regexp.MustCompile(`^(?:[a-z](?:[-a-z0-9]{0,43})?)$`)
 	match := re.MatchString(ruleNamePrefix)
 	if !match {
@@ -45,7 +48,7 @@ func GenerateConfig(configBuff []byte) (*BouncerConfig, error) {
 
 	config := &BouncerConfig{}
 	if err := yaml.UnmarshalStrict(configBuff, &config); err != nil {
-		return &BouncerConfig{}, fmt.Errorf("failed to unmarshal yaml config file: %v", err)
+		return &BouncerConfig{}, fmt.Errorf("failed to unmarshal yaml config file: %s", err)
 	}
 
 	config.RuleNamePrefix = strings.ToLower(config.RuleNamePrefix)
@@ -83,11 +86,10 @@ func GenerateConfig(configBuff []byte) (*BouncerConfig, error) {
 }
 
 func NewConfig(configPath string) (*BouncerConfig, error) {
-
 	configBuff, err := ioutil.ReadFile(configPath)
 
 	if err != nil {
-		return &BouncerConfig{}, fmt.Errorf("failed to read %s : %v", configPath, err)
+		return &BouncerConfig{}, fmt.Errorf("failed to read %s : %s", configPath, err)
 	}
 	return GenerateConfig(configBuff)
 }

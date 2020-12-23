@@ -44,15 +44,11 @@ func handleSignals(firewallBouncers []*firewall.Bouncer) {
 			switch s {
 			// kill -SIGTERM XXXX
 			case syscall.SIGABRT:
-				log.Printf("Received SIGABRT")
 				fallthrough
 			case syscall.SIGINT:
-				log.Printf("Received SIGINT")
 				fallthrough
 			case syscall.SIGTERM:
-				log.Printf("Received SIGTERM")
 				for _, fb := range firewallBouncers {
-					log.Printf("Trying to terminate bouncer")
 					if err := termHandler(s, fb); err != nil {
 						log.Errorf("shutdown fail: %s", err)
 						exitChan <- 1
@@ -69,21 +65,20 @@ func handleSignals(firewallBouncers []*firewall.Bouncer) {
 			code = 1
 		}
 	}
-	log.Infof("Shutting down bouncer service")
+	log.Infof("shutting down bouncer service")
 	os.Exit(code)
 }
 
 func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, error) {
 	cloudClients := []providers.CloudClient{}
-	if (models.GCPConfig{}) != config.CloudProviders.GCP {
+	if (models.GCPConfig{}) != config.CloudProviders.GCP && !config.CloudProviders.GCP.Disabled {
 		gcpClient, err := gcp.NewClient(&config.CloudProviders.GCP)
 		if err != nil {
 			return nil, err
 		}
 		cloudClients = append(cloudClients, gcpClient)
 	}
-	if (models.AWSConfig{}) != config.CloudProviders.AWS {
-		// @TODO: Implement AWS Network Firewall
+	if (models.AWSConfig{}) != config.CloudProviders.AWS && !config.CloudProviders.AWS.Disabled {
 		awsClient, err := aws.NewClient(&config.CloudProviders.AWS)
 		if err != nil {
 			return nil, err
@@ -91,8 +86,8 @@ func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, e
 		cloudClients = append(cloudClients, awsClient)
 	}
 	if len(cloudClients) == 0 {
-		// @TODO: Implement AWS Network Firewall, AWS WAF Firewall, Azure, GCP Cloud Armor
-		return nil, fmt.Errorf("Provider must be configured")
+		// @TODO: Implement AWS WAF Firewall, Azure, GCP Cloud Armor
+		return nil, fmt.Errorf("at least one cloud provider must be configured")
 	}
 	return cloudClients, nil
 }
@@ -173,7 +168,7 @@ func main() {
 	if config.Daemon == true {
 		sent, err := daemon.SdNotify(false, "READY=1")
 		if !sent && err != nil {
-			log.Errorf("Failed to notify: %v", err)
+			log.Errorf("failed to notify: %s", err)
 		}
 	}
 	handleSignals(firewallBouncers)

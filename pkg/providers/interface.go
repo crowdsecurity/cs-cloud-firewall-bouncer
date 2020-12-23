@@ -8,8 +8,10 @@ import (
 type CloudClient interface {
 	// GetProviderName returns the name of the cloud provider.
 	GetProviderName() string
-	// MaxIpsPerRule returns the maximum number of source range or IP that a firewall rule can contain.
-	MaxIpsPerRule() int
+	// MaxSourcesPerRule returns the maximum number of source range or IP that a firewall rule can contain.
+	MaxSourcesPerRule() int
+	// MaxRules returns the maximum number of rule(s) that will be created.
+	MaxRules() int
 	// GetRules returns the firewall rules that matches the ruleNamePrefix.
 	GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 	// CreateRule creates the firewall rule at the cloud provider.

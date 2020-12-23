@@ -26,13 +26,12 @@ The Cloud Firewall Bouncer will periodically fetch new and expired/removed decis
 
 Supported cloud providers:
 
-- Google Cloud Platform (GCP) :heavy_check_mark:
-
-:information_source: More cloud providers will be added shortly. See [todo](#todo)
+- Google Cloud Platform (GCP) Network Firewall:heavy_check_mark:
+- Amazon Web Services (AWS) Network Firewall :heavy_check_mark:
 
 ## Usage with example
 
-A complete step-by-step example of using the bouncer docker image with the GCP provider is available [here](docs/example.md).
+A complete step-by-step example of using the bouncer docker image with the GCP provider is available [here](docs/example-gcp.md).
 
 ## Using Docker
 
@@ -92,11 +91,16 @@ $ vim /etc/crowdsec/cs-cloud-firewall-bouncer/cs-cloud-firewall-bouncer.yaml
 ```
 
 ```yaml
-cloud_providers:
+cloud_providers: # 1 or more provider needs to be specified
   gcp:
     project_id: gcp-project-id # optional if using application default credentials, will override project id of the application default credentials
     network: default # mandatory, this is the VPC network where the firewall rules will be created
-rule_name_prefix: crowdsec # mandatory, this is the prefix for the firewall rule names to create/update
+  aws:
+    region: us-east-1 # mandatory
+    firewall_policy: policy-name # mandatory, this is the firewall policy which will contain the rule group. The firewall policy must exist.
+    capacity: 1000 # optional, defaults to 1000. This is the capacity of the rule group that the bouncer will create.
+    rule_group_priority: 1 # optional, defaults to 1. This is the priority of the rule group in the firewall policy.
+rule_name_prefix: crowdsec # mandatory, this is the prefix for the firewall rule name(s) to create/update
 update_frequency: 10s
 daemonize: true
 log_mode: stdout
@@ -108,12 +112,9 @@ api_key: <API_KEY> # Add your API key generated with `cscli bouncers add --name 
 
 ### Rule name prefix requirements
 
-The rule name generated must comply with [RFC1035](https://tools.ietf.org/html/rfc1035).
-Since two random words (maximum 19 characters) are appended to the rule name prefix to
-create unique rule names, this checks that the rule name prefix be 1-44 characters long
-and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)\$. The first character
+The rule name prefix be 1-44 characters long and match the regular expression `^(?:[a-z](?:[-a-z0-9]{0,43})?)\$. The first character
 must be a lowercase letter, and all following characters must be a dash, lowercase letter, or
-digit.
+digit. The name cannot contain two consecutive dash ('-') characters.
 
 ## Authentication
 
@@ -130,9 +131,25 @@ The service account will need the following permissions:
 - compute.firewalls.update
 - compute.networks.updatePolicy
 
+### AWS
+
+Authentication to AWS is done through the [default credential provider chain](https://docs.aws.amazon.com/sdk-for-go/api/aws/defaults/#CredChain).
+
+The user account will need the following permissions:
+
+- ListFirewallPolicies
+- ListRuleGroups
+- DescribeFirewallPolicy
+- DescribeRuleGroup
+- CreateRuleGroup
+- DeleteRuleGroup
+- UpdateFirewallPolicy
+- UpdateRuleGroup
+
+The managed role `NetworkFirewallManager` already provides these permissions.
+
 ## Todo
 
-- Add AWS Network Firewall as a provider
 - Add Azure as a provider
 - Add Google Cloud Armor as a provider
 - Add AWS WAF as a provider

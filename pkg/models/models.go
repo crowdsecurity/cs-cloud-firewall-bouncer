@@ -1,5 +1,12 @@
 package models
 
+import (
+	"fmt"
+	"net"
+
+	log "github.com/sirupsen/logrus"
+)
+
 type ruleState string
 
 const (
@@ -36,4 +43,13 @@ func ConvertSourceRangesSliceToMap(sourceRanges []string) map[string]bool {
 		m[source] = true
 	}
 	return m
+}
+
+func GetCIDR(source string) string {
+	_, cidr, err := net.ParseCIDR(source)
+	if err != nil {
+		log.Debugf("cannot parse %s to CIDR: %s. Will assume this is IPv4 and append mask /32", source, err.Error())
+		return fmt.Sprintf("%s/32", source)
+	}
+	return cidr.String()
 }
