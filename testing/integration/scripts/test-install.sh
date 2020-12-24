@@ -1,13 +1,27 @@
 #!/usr/bin/env bash
 
 apt-get update && apt-get install -y curl gettext-base
-mkdir /cs-cloud-firewall-bouncer
-pushd /cs-cloud-firewall-bouncer || exit 1
-    curl -LO https://github.com/fallard84/cs-cloud-firewall-bouncer/releases/download/v0.1.0/cs-cloud-firewall-bouncer.tgz && \
-        tar xzvf cs-cloud-firewall-bouncer.tgz && \
-        cd cs-cloud-firewall-bouncer-v*/ && \
-        chmod +x install.sh
-printf 'n\nhttp://crowdsec:8080\n12345\n\nmy-project\ndefault\n\nus-east1\nmy-firewall-policy\n200\n1\ncrowdsec\n' | ./install.sh
+
+mkdir release
+cp ./cs-cloud-firewall-bouncer release/
+cp -R ./config release/
+cp ./scripts/install.sh release/
+
+pushd release || exit 1
+    ./install.sh << EOF
+n
+http://crowdsec:8080
+12345
+
+my-project
+default
+
+us-east1
+my-firewall-policy
+200
+1
+crowdsec
+EOF
 popd || exit 1
 
 diff /etc/crowdsec/cs-cloud-firewall-bouncer/cs-cloud-firewall-bouncer.yaml testing/integration/scripts/expected-config.yaml && \
