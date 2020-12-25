@@ -1,0 +1,18 @@
+cloud_providers:
+  gcp:
+    network: default
+    endpoint: http://localhost:1080/
+  # aws:
+  #   region: us-east-1
+  #   firewall_policy: test-policy
+  #   capacity:
+  #   rule_group_priority:
+  #   endpoint: http://localhost:9090/
+rule_name_prefix: crowdsec
+update_frequency: 2s
+daemonize: false
+log_mode: file
+log_dir: log/
+log_level: debug
+api_url: http://localhost:1080/
+api_key: dummy-api-key

@@ -1,0 +1,12 @@
+version: "3.3"
+
+services:
+  crowdsec:
+    image: mockserver/mockserver
+    ports:
+      - "1080:1080"
+    command: -logLevel INFO -serverPort 1080
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /mocks.json
+    volumes:
+      - "./mocks.json:/mocks.json"
