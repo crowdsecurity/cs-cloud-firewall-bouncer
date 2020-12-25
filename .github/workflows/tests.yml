@@ -25,8 +25,8 @@ jobs:
       - name: e2e tests
         run: ./testing/integration/e2e/e2e-coverage.sh
       - name: merge coverage
-        run: gocovmerge
-      - name: gcov2lcov unit.out e2e_coverage.out > coverage.out
+        run: gocovmerge unit.out e2e_coverage.out > coverage.out
+      - name: gcov2lcov
         uses: jandelgado/gcov2lcov-action@v1.0.2
         with:
           infile: coverage.out
