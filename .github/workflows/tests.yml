@@ -21,7 +21,9 @@ jobs:
       - name: Build
         run: go build && go get -u github.com/jandelgado/gcov2lcov
       - name: Unit tests
-        run: go test -v -coverprofile=coverage.out -covermode=count ./...
+        run: go test -v -coverprofile=unit.out -covermode=count github.com/fallard84/cs-cloud-firewall-bouncer/pkg/...
+      - name: e2e tests
+        run: ./testing/integration/e2e/e2e-coverage.sh
       - name: gcov2lcov
         uses: jandelgado/gcov2lcov-action@v1.0.2
         with:
