@@ -12,9 +12,11 @@ pushd testing/integration/e2e || exit 1
     printf "\nStarting e2e test\n"
     GOOGLE_APPLICATION_CREDENTIALS="${PWD}/gcp-sa.json" go test ${root_dir}/main_test.go -v -bin-c ${PWD}/config.yaml &
     echo "Waiting 15 sec, then stopping process"
-    sleep 15
+    sleep 30
     echo "Stopping process"
-    ps | grep "cs-cloud-firewall-bouncer_instr-bin" |  grep -v "grep" | awk  '{ print $1 }' | xargs -I{} kill -n SIGABRT {}
+    ps
+    ps | grep "cs-cloud-firewall-bouncer_instr-bin" |  grep -v "grep" | awk '{ print $1 }'
+    ps | grep "cs-cloud-firewall-bouncer_instr-bin" |  grep -v "grep" | awk '{ print $1 }' | xargs -I{} kill -n SIGTERM {}
     echo "Stopping mock server"
     docker-compose down
 popd || exit 1
