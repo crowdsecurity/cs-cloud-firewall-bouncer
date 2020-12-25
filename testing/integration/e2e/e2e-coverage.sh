@@ -14,9 +14,10 @@ pushd testing/integration/e2e || exit 1
     echo "Waiting 15 sec, then stopping process"
     sleep 30
     echo "Stopping process"
-    ps
-    ps | grep "cs-cloud-firewall-bouncer_instr-bin" |  grep -v "grep" | awk '{ print $1 }'
-    ps | grep "cs-cloud-firewall-bouncer_instr-bin" |  grep -v "grep" | awk '{ print $1 }' | xargs -I{} kill -n SIGTERM {}
+    ps -eow pid,cmd
+    ps -eow pid,cmd | grep "cs-cloud-firewall-bouncer_instr-bin" |  grep -v "grep" | awk '{ print $1 }'
+    ps -eow pid,cmd | grep "cs-cloud-firewall-bouncer_instr-bin" |  grep -v "grep" | awk '{ print $1 }' | xargs -I{} kill -n SIGTERM {}
     echo "Stopping mock server"
     docker-compose down
 popd || exit 1
+cat log/*.log
