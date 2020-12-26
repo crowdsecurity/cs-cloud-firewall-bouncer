@@ -9,6 +9,7 @@ type GCPConfig struct {
 	Disabled  bool   `yaml:"disabled"`
 	ProjectID string `yaml:"project_id"`
 	Network   string `yaml:"network"`
+	Endpoint  string `yaml:"endpoint"`
 }
 
 type AWSConfig struct {
@@ -17,4 +18,5 @@ type AWSConfig struct {
 	FirewallPolicy    string `yaml:"firewall_policy"`
 	Capacity          int    `yaml:"capacity"`
 	RuleGroupPriority int    `yaml:"rule_group_priority"`
+	Endpoint          string `yaml:"endpoint"`
 }

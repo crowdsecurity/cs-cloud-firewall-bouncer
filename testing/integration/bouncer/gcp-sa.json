@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "crowdsec-dummy-project",
+  "private_key_id": "1ce31462efc9813f92be9cbc5898a1999d388565",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEugIBADANBgkqhkiG9w0BAQEFAASCBKQwggSgAgEAAoIBAQCvvPX/sV6BZ9Ee\n50V7fqg84SR8IO+GFr02WjrF1QpKKM9sOZ2HMkw/fJfw3tupmtvKMcweDI48LE+h\nkN6jYOUxuM+Tg7xms5McJdB5IPFxCH1p2WxEK1hcVx9ltHD4/5E49l839RP3a0qc\nNTpowaEkMhS97a/2i6veMKmWKwTOn9I3qmx1hDv2f9jYZubi6jxvaPHVbBOyIJJg\nCIYGtear2KkgxkLBWFoCmZUeWBVbo4rx+DvrHHK5igeaihbJvT/KdVI6Jo7nZ9LR\nQvaYDzLgq6fhNlieCdxh8D8aJM9Le5Ij73t7xckEbY3qO1iuSlPzjSYubwEDK9ui\nLiFvG4UDAgMBAAECgf8N0bCSRU6VeAyRV7IFcFSyy3+HJ7VHsJ2ilsxyrl+0dS5g\nTl6sbEoUnFMfOVtDweex9Mo5uhHL4KwzGfghBECDksPTmLWkQj+j3WUe9fg1siCJ\nENDPOMiccmTInJUaUiHkI6Lm+Lsw1xWqUm2SMbd4NtZ6d3NoqtIKPnK47/fVO7o4\n6uhozUUH+99eZV+SPkApVUltl9i9yB8QHvVJnIMNiWbKGwd7hCQzE69VVxormTUL\ncgghuuhLza9KQ/loOCnK3ioXzV63vpah1tW724Wu5lbMQzXa7cZSRc5Sy9g6nc8C\n2hsRiorRh+eW2oZPn2ysx2lE5D8Q7+WA+vekHa0CgYEA2u2ShVyYfINTXkpiCq8Z\nR86nJPW+7MPcygQlx0PVkTJzvSXzRnTyJga40U9SXb+EBISenzxysZvV6l0mtCXy\nwxZ1a6W8h8ouYJuvDnZggnsm8X8Al/54M9XEmYDgrrN+tARkUr0zJiOslYhI6X8f\nez3rtsGdwSB0h17IZ7jIsKcCgYEAzX8ghLyNOZnRQujnkM6Oc6PM07mVs9hJDPNd\nDCDhH4owF0Zyr8H9nv9Dw2KC90Fu8vMWgwyqbh+FmVwmaBMYb9XwmhegTP+YjG3E\njTTzuUUOQrCkk8qA8S2PqiXn5WJKD15CXFRUFrkWEyAOhxx3rIYLjYeu0LXUqVZH\nLiQx2EUCgYB0MmPyJJNKgulcwl4HDah9VFGibExJnisxjcH/YSGZTw3e9qWIX8mm\nJSsy7Mbquxt2ymzmV08ItY10Nry0IPAYW3M3D2BhMg4reHYRVwMiPfsNcjr+cTGb\nUXpnft/B2cMGCM62m3TqaUTQmOUaCT7MSrEw7tKsDm3K66OyaYEbQQKBgF5P4B7L\nYo1zGOV6evyssBhGrvTlEd3OgAhfkO7GEEwnYdbs0Cn2AG5+fR0pEy5ja4Y5JrXS\nlE2iTfCKqF3PlcGOELTH7xwnml2o6zJbgRggp2DYLVBe+jq2TF8ssndGWvMesZoq\nYcVkAMuaRNChshMOGjNEeGj1arqlDFoS5oV5AoGAOTHIu0nLi6x05H6qD+Nk7hDl\nStjiDa07+Td+rdWctBpNEQcO4+q7kKxEQ+ANxlXsb5Bj60aZnTZZR9r/gTTYDOIh\nyr10ZH7JxRXf8p2BpMG9rGraC3rsgQtL78GYdk1ToZ+yXrw1iZgOe9oLPPZ1UWEQ\n1cPj79u1lwVXq8uw20I=\n-----END PRIVATE KEY-----\n",
+  "client_email": "crowdsec-cloud-firewall-bounce@crowdsec-dummy-project.iam.gserviceaccount.com",
+  "client_id": "117520035907552296021",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/crowdsec-cloud-firewall-bounce%40crowdsec-dummy-project.iam.gserviceaccount.com"
+}
