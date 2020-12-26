@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-go test . -tags testbincover -coverpkg=github.com/fallard84/cs-cloud-firewall-bouncer,github.com/fallard84/cs-cloud-firewall-bouncer/pkg/providers/...,github.com/fallard84/cs-cloud-firewall-bouncer/pkg/models,github.com/fallard84/cs-cloud-firewall-bouncer/pkg/firewall,github.com/fallard84/cs-cloud-firewall-bouncer/pkg/config -c -o cs-cloud-firewall-bouncer_instr-bin -ldflags="-X github.com/fallard84/cs-cloud-firewall-bouncer.isTest=true"

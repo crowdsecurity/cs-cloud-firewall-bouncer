@@ -123,7 +123,7 @@ func main() {
 	done := make(chan struct{})
 
 	log.Infof("%s %s", name, version.Version)
-	configPath := flag.String("c", "config.yaml", "path to config file")
+	configPath := flag.String("c", "", "path to config file")
 	verbose := flag.Bool("v", false, "set verbose mode")
 
 	flag.Parse()

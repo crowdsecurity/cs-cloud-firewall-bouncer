@@ -30,7 +30,7 @@ build: clean
 	$(GOBUILD) $(LD_OPTS) -o $(BINARY_NAME) -v
 
 test:
-	@$(GOTEST) -v ./...
+	@$(GOTEST) -v github.com/fallard84/cs-cloud-firewall-bouncer/pkg/...
 
 clean:
 	@rm -f $(BINARY_NAME)
