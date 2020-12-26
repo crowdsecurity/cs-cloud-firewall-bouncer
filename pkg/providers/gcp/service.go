@@ -20,12 +20,8 @@ type GoogleComputeService struct {
 	svc *compute.Service
 }
 
-// To use an OAuth token (e.g., a user token obtained via a three-legged OAuth flow), use option.WithTokenSource:
-//
-//   config := &oauth2.Config{...}
-//   // ...
-//   token, err := config.Exchange(ctx, ...)
-//   computeService, err := compute.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+// NewGoogleComputeService creates the compute service.
+// The default endpoint can be overriden for testing purpose (to make calls to a mock server instead of the real Google servers).
 func NewGoogleComputeService(endpoint string) *GoogleComputeService {
 	opts := []option.ClientOption{}
 	if endpoint != "" {

@@ -9,7 +9,8 @@ type GCPConfig struct {
 	Disabled  bool   `yaml:"disabled"`
 	ProjectID string `yaml:"project_id"`
 	Network   string `yaml:"network"`
-	Endpoint  string `yaml:"endpoint"`
+	// Endpoint is used for making calls to a mock server instead of the real Google services endpoints.
+	Endpoint string `yaml:"endpoint"`
 }
 
 type AWSConfig struct {
@@ -18,5 +19,6 @@ type AWSConfig struct {
 	FirewallPolicy    string `yaml:"firewall_policy"`
 	Capacity          int    `yaml:"capacity"`
 	RuleGroupPriority int    `yaml:"rule_group_priority"`
-	Endpoint          string `yaml:"endpoint"`
+	// Endpoint is used for making calls to a mock server instead of the real AWS services endpoints.
+	Endpoint string `yaml:"endpoint"`
 }
