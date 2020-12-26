@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-apt-get update && apt-get install -y curl gettext-base
+apt-get update && apt-get install -y gettext-base
 
 mkdir release
 cp ./cs-cloud-firewall-bouncer release/

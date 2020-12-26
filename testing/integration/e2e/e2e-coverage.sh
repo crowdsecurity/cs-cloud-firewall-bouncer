@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
+
 root_dir=${PWD}
 rm e2e_coverage.out
 pushd testing/integration/e2e || exit 1
@@ -19,3 +21,4 @@ pushd testing/integration/e2e || exit 1
     docker-compose down
 popd || exit 1
 cat log/*.log
+cat log/*.log | grep -e "error" -e "fatal" -e "panic" && exit 1
