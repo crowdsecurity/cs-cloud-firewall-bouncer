@@ -2,7 +2,7 @@
 set -e
 
 root_dir=${PWD}
-rm e2e_coverage.out
+rm -f e2e_coverage.out
 pushd testing/integration/e2e || exit 1
     echo "Starting mock server"
     docker-compose up -d
