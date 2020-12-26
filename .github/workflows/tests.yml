@@ -22,10 +22,10 @@ jobs:
         run: go build && go get -u github.com/jandelgado/gcov2lcov github.com/wadey/gocovmerge
       - name: Unit tests
         run: go test -v -coverprofile=unit.out -covermode=set github.com/fallard84/cs-cloud-firewall-bouncer/pkg/...
-      - name: e2e tests
-        run: ./testing/integration/e2e/e2e-coverage.sh
+      - name: Integration tests
+        run: ./testing/integration/bouncer/test.sh
       - name: merge coverage
-        run: gocovmerge unit.out e2e_coverage.out > coverage.out
+        run: gocovmerge unit.out integration.out > coverage.out
       - name: gcov2lcov
         uses: jandelgado/gcov2lcov-action@v1.0.2
         with:

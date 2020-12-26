@@ -30,7 +30,7 @@ func TestMainMethod(t *testing.T) {
 		panic(err)
 	}
 	// 2. Initializing a `CoverageCollector`
-	collector := bincover.NewCoverageCollector("e2e_coverage.out", true)
+	collector := bincover.NewCoverageCollector("integration.out", true)
 	// 3. Calling `collector.Setup()` once before running all of your tests
 	err = collector.Setup()
 	require.NoError(t, err)
