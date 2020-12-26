@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"golang.org/x/oauth2"
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/option"
 )
 
 type GoogleComputeServiceIface interface {
@@ -18,8 +20,25 @@ type GoogleComputeService struct {
 	svc *compute.Service
 }
 
-func NewGoogleComputeService() *GoogleComputeService {
-	svc, err := compute.NewService(context.Background())
+// NewGoogleComputeService creates the compute service.
+// The default endpoint can be overriden for testing purpose (to make calls to a mock server instead of the real Google servers).
+func NewGoogleComputeService(endpoint string) *GoogleComputeService {
+	opts := []option.ClientOption{}
+	if endpoint != "" {
+		config := &oauth2.Config{
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  endpoint,
+				TokenURL: endpoint,
+			},
+		}
+		ctx := context.Background()
+		token, err := config.Exchange(ctx, "dummy")
+		if err != nil {
+			log.Fatalf("Couldn't create dummy token for new Google compute service: %s", err)
+		}
+		opts = append(opts, option.WithEndpoint(endpoint), option.WithTokenSource(config.TokenSource(ctx, token)))
+	}
+	svc, err := compute.NewService(context.Background(), opts...)
 	if err != nil {
 		log.Fatalf("Unable to create new compute service: %s", err)
 	}

@@ -31,7 +31,7 @@ func (c *Client) MaxRules() int {
 	return 10
 }
 
-func getProjectIDFromCredentials() (string, error) {
+func getProjectIDFromCredentials(config *models.GCPConfig) (string, error) {
 	ctx := context.Background()
 	credentials, error := google.FindDefaultCredentials(ctx, compute.ComputeScope)
 	if error != nil {
@@ -49,7 +49,7 @@ func checkGCPConfig(config *models.GCPConfig) error {
 	}
 	if config.ProjectID == "" {
 		var err error
-		config.ProjectID, err = getProjectIDFromCredentials()
+		config.ProjectID, err = getProjectIDFromCredentials(config)
 		if err != nil || config.ProjectID == "" {
 			return fmt.Errorf("can't get project id from credentials: %s", err)
 		}
@@ -69,7 +69,7 @@ func NewClient(config *models.GCPConfig) (*Client, error) {
 	}
 
 	return &Client{
-		svc:     NewGoogleComputeService(),
+		svc:     NewGoogleComputeService(config.Endpoint),
 		project: config.ProjectID,
 		network: config.Network,
 	}, nil

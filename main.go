@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/confluentinc/bincover"
 	"github.com/coreos/go-systemd/daemon"
 	csbouncer "github.com/crowdsecurity/go-cs-bouncer"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/config"
@@ -24,6 +25,11 @@ const (
 	name = "cs-cloud-firewall-bouncer"
 )
 
+var (
+	// Injected from linker flags like `go build -ldflags "-X github.com/fallard84/cs-cloud-firewall-bouncer.isTest=true"`
+	isTest = "false"
+)
+
 var t tomb.Tomb
 
 func termHandler(sig os.Signal, fb *firewall.Bouncer) error {
@@ -33,7 +39,7 @@ func termHandler(sig os.Signal, fb *firewall.Bouncer) error {
 	return nil
 }
 
-func handleSignals(firewallBouncers []*firewall.Bouncer) {
+func handleSignals(firewallBouncers []*firewall.Bouncer, done chan struct{}) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan)
 
@@ -59,14 +65,21 @@ func handleSignals(firewallBouncers []*firewall.Bouncer) {
 			}
 		}
 	}()
-	code := 0
-	for range firewallBouncers {
-		if <-exitChan == 1 {
-			code = 1
+	go func() {
+		code := 0
+		for range firewallBouncers {
+			if <-exitChan == 1 {
+				code = 1
+			}
 		}
-	}
-	log.Infof("shutting down bouncer service")
-	os.Exit(code)
+		log.Infof("shutting down bouncer service")
+		done <- struct{}{}
+		if isTest == "true" {
+			bincover.ExitCode = code
+		} else {
+			os.Exit(code)
+		}
+	}()
 }
 
 func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, error) {
@@ -107,6 +120,8 @@ func getFirewallBouncers(config config.BouncerConfig) ([]*firewall.Bouncer, erro
 
 func main() {
 	var err error
+	done := make(chan struct{})
+
 	log.Infof("%s %s", name, version.Version)
 	configPath := flag.String("c", "", "path to config file")
 	verbose := flag.Bool("v", false, "set verbose mode")
@@ -171,10 +186,16 @@ func main() {
 			log.Errorf("failed to notify: %s", err)
 		}
 	}
-	handleSignals(firewallBouncers)
+	handleSignals(firewallBouncers, done)
 
-	err = t.Wait()
-	if err != nil {
-		log.Fatalf("process return with error: %s", err)
-	}
+	go func() {
+		err = t.Wait()
+		if err != nil {
+			log.Fatalf("process return with error: %s", err)
+		}
+	}()
+
+	<-done
+	log.Info("process finished cleanly")
+	return
 }

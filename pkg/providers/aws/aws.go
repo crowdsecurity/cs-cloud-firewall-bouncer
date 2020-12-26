@@ -58,7 +58,10 @@ func NewClient(config *models.AWSConfig) (*Client, error) {
 	log.Infof("creating client for %s", providerName)
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
-		Config:            aws.Config{Region: aws.String(config.Region)},
+		Config: aws.Config{
+			Region:   aws.String(config.Region),
+			Endpoint: aws.String(config.Endpoint),
+		},
 	}))
 	_, err := sess.Config.Credentials.Get()
 	if err != nil {

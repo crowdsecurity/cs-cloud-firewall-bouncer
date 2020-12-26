@@ -1,0 +1,19 @@
+cloud_providers:
+  gcp:
+    disabled: false
+    project_id: my-project
+    network: default
+  aws:
+    disabled: false
+    region: us-east1
+    firewall_policy: my-firewall-policy
+    capacity: 200
+    rule_group_priority: 1
+rule_name_prefix: crowdsec
+update_frequency: 10s
+daemonize: true
+log_mode: file
+log_dir: /var/log/
+log_level: info
+api_url: http://crowdsec:8080
+api_key: 12345
