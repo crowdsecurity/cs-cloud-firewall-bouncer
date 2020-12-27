@@ -9,4 +9,4 @@ services:
     environment:
       MOCKSERVER_INITIALIZATION_JSON_PATH: /mocks.json
     volumes:
-      - "./mocks.json:/mocks.json"
+      - "./expectations/output/mocks.json:/mocks.json"

@@ -12,6 +12,7 @@ require (
 	github.com/sethvargo/go-diceware v0.2.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
+	github.com/vjeantet/grok v1.0.1 // indirect
 	golang.org/x/net v0.0.0-20201216054612-986b41b23924 // indirect
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	google.golang.org/api v0.36.0
