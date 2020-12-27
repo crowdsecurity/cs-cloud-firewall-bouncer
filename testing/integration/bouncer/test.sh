@@ -31,7 +31,7 @@ pushd testing/integration/bouncer || exit 1
         count=$((count+1))
     done
     printf "\nStarting test\n"
-    GOOGLE_APPLICATION_CREDENTIALS="${PWD}/gcp-sa.json" go test ${root_dir}/main_test.go -v -bin-c ${PWD}/config.yaml &
+    GOOGLE_APPLICATION_CREDENTIALS="${PWD}/gcp-sa.json" AWS_ACCESS_KEY_ID=dummy-id AWS_SECRET_ACCESS_KEY=dummy-secret go test ${root_dir}/main_test.go -v -bin-c ${PWD}/config.yaml &
     echo "Waiting 15 sec, then stopping process"
     sleep 30
     echo "Stopping process"
