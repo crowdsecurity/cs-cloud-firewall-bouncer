@@ -12,7 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install yq
-        run: wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O $HOME/bin/yq && chmod +x $HOME/bin/yq && echo "$HOME/bin" >> $GITHUB_PATH
+        run: |
+          mkdir -p $HOME/bin/
+          wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O $HOME/bin/yq
+          chmod +x $HOME/bin/yq
+          echo "$HOME/bin" >> $GITHUB_PATH
       - name: Set up Go 1.15
         uses: actions/setup-go@v2
         with:
