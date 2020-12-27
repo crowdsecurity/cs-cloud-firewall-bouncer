@@ -14,7 +14,7 @@ jobs:
       - name: Install yq
         run: |
           mkdir -p $HOME/bin/
-          wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O $HOME/bin/yq
+          wget https://github.com/mikefarah/yq/releases/download/v4.1.0/yq_linux_amd64 -O $HOME/bin/yq
           chmod +x $HOME/bin/yq
           echo "$HOME/bin" >> $GITHUB_PATH
       - name: Set up Go 1.15
