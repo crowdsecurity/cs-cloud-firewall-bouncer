@@ -1,0 +1,8 @@
+- id: mockserver-healtz
+  httpRequest:
+    method: GET
+    path: /healthz
+  httpResponse:
+    statusCode: 200
+  times:
+    unlimited: true

@@ -2,6 +2,11 @@ cloud_providers:
   gcp:
     project_id: gcp-project-id # optional if using application default credentials, will override project id of the application default credentials
     network: default # mandatory, this is the VPC network where the firewall rules will be created
+  aws:
+    region: us-east-1 # mandatory
+    firewall_policy: policy-name # mandatory, this is the firewall policy which will contain the rule group. The firewall policy must exist.
+    capacity: 1000 # optional, defaults to 1000. This is the capacity of the rule group that the bouncer will create.
+    rule_group_priority: 1 # optional, defaults to 1. This is the priority of the rule group in the firewall policy.
 rule_name_prefix: crowdsec # mandatory, this is the prefix for the firewall rule names
 update_frequency: 10s
 daemonize: false

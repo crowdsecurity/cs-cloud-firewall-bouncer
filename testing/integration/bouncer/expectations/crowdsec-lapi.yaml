@@ -1,0 +1,98 @@
+- id: lapi-startup-stream
+  httpRequest:
+    method: GET
+    path: /v1/decisions/stream
+    queryStringParameters:
+      startup:
+        - "true"
+  httpResponse:
+    statusCode: 200
+    body:
+      deleted:
+        - value: 1.2.3.6
+        - value: 1.2.3.7
+      new:
+        - value: 1.2.3.4
+        - value: 1.2.3.5
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: lapi-stream-add
+  httpRequest:
+    method: GET
+    path: /v1/decisions/stream
+    queryStringParameters:
+      startup:
+        - "false"
+  httpResponse:
+    statusCode: 200
+    body:
+      deleted: null
+      new:
+        - value: 1.2.3.9
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: lapi-stream-empty
+  httpRequest:
+    method: GET
+    path: /v1/decisions/stream
+    queryStringParameters:
+      startup:
+        - "false"
+  httpResponse:
+    statusCode: 200
+    body:
+      deleted: null
+      new: null
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: lapi-stream-delete-all
+  httpRequest:
+    method: GET
+    path: /v1/decisions/stream
+    queryStringParameters:
+      startup:
+        - "false"
+  httpResponse:
+    statusCode: 200
+    body:
+      deleted:
+        - value: 1.2.3.4
+        - value: 1.2.3.5
+        - value: 1.2.3.9
+      new: null
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: lapi-stream-add2
+  httpRequest:
+    method: GET
+    path: /v1/decisions/stream
+    queryStringParameters:
+      startup:
+        - "false"
+  httpResponse:
+    statusCode: 200
+    body:
+      deleted: null
+      new:
+        - value: 1.2.3.9
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: lapi-stream-empty-forever
+  httpRequest:
+    method: GET
+    path: /v1/decisions/stream
+    queryStringParameters:
+      startup:
+        - "false"
+  httpResponse:
+    statusCode: 200
+    body:
+      deleted: null
+      new: null
+  times:
+    unlimited: true

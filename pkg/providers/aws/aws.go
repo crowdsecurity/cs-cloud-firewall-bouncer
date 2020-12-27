@@ -168,7 +168,7 @@ func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 					sources = append(sources, *source.AddressDefinition)
 				}
 			}
-			log.Infof("%s  (%d rules): %#v", *res.RuleGroupResponse.RuleGroupName, len(sources), sources)
+			log.Infof("%s  (%d sources): %#v", *res.RuleGroupResponse.RuleGroupName, len(sources), sources)
 			rule := models.FirewallRule{
 				Name:         *res.RuleGroupResponse.RuleGroupName,
 				SourceRanges: models.ConvertSourceRangesSliceToMap(sources),
