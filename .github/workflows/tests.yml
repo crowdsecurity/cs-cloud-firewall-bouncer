@@ -17,7 +17,7 @@ jobs:
           go-version: 1.15
         id: go
       - name: Install yq
-        run: wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+        run: wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O $HOME/yq && chmod +x $HOME/yq && echo "$HOME/yq" >> $GITHUB_PATH
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
       - name: Build
