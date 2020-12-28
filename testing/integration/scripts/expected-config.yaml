@@ -9,6 +9,10 @@ cloud_providers:
     firewall_policy: my-firewall-policy
     capacity: 200
     priority: 1
+  cloudarmor:
+    disabled: false
+    project_id: my-project
+    policy: cloudarmor-policy
 rule_name_prefix: crowdsec
 update_frequency: 10s
 daemonize: true

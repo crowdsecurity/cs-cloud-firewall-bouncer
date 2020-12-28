@@ -20,6 +20,9 @@ us-east1
 my-firewall-policy
 200
 1
+
+my-project
+cloudarmor-policy
 crowdsec
 EOF
 popd || exit 1
