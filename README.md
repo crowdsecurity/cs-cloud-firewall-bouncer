@@ -27,6 +27,7 @@ The Cloud Firewall Bouncer will periodically fetch new and expired/removed decis
 Supported cloud providers:
 
 - Google Cloud Platform (GCP) Network Firewall:heavy_check_mark:
+- Google Cloud Platform (GCP) Cloud Armor:heavy_check_mark:
 - Amazon Web Services (AWS) Network Firewall :heavy_check_mark:
 
 ## Usage with example
@@ -127,7 +128,9 @@ digit. The name cannot contain two consecutive dash ('-') characters.
 
 ### GCP
 
-Authentication to GCP is done through [Application Default Credentials](https://cloud.google.com/docs/authentication/production). If using a service account, the GCP project ID will be automatically determined (using the project ID of the service account) and does not have to be specified in the configuration. If the service account resides in a different project than the VPC network, the GCP project ID must be overridden in the configuration.
+Authentication to GCP is done through [Application Default Credentials](https://cloud.google.com/docs/authentication/production). If using a service account, the GCP project ID will be automatically determined (using the project ID of the service account) and does not have to be specified in the configuration. If the service account resides in a different project than the VPC network/Cloud Armor policy, the GCP project ID must be overridden in the configuration.
+
+#### Network Firewall
 
 The service account will need the following permissions:
 
@@ -137,6 +140,15 @@ The service account will need the following permissions:
 - compute.firewalls.list
 - compute.firewalls.update
 - compute.networks.updatePolicy
+
+#### Cloud Armor
+
+The service account will need the following permissions:
+
+- compute.securityPolicies.get
+- compute.securityPolicies.update
+
+The managed role `roles/compute.securityAdmin` already provides these permissions.
 
 ### AWS
 
