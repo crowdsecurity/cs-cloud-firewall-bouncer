@@ -9,7 +9,7 @@ cloud_providers:
     firewall_policy: ${AWS_FIREWALL_POLICY}
     capacity: ${AWS_CAPACITY}
     priority: ${AWS_RULE_GROUP_PRIORITY}
-  cloudamor:
+  cloudarmor:
     disabled: ${CLOUDARMOR_DISABLED}
     project_id: ${CLOUDARMOR_PROJECT_ID}
     policy: ${CLOUDARMOR_POLICY}

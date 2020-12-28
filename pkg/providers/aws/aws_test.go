@@ -58,7 +58,7 @@ func (s *mockedAWSSvc) DescribeRuleGroup(input *networkfirewall.DescribeRuleGrou
 										},
 									},
 								},
-								Priority: aws.Int64(0),
+								Priority: aws.Int64(1),
 							},
 						},
 					},
