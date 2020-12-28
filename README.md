@@ -170,5 +170,4 @@ The managed role `NetworkFirewallManager` already provides these permissions.
 ## Todo
 
 - Add Azure as a provider
-- Add Google Cloud Armor as a provider
 - Add AWS WAF as a provider
