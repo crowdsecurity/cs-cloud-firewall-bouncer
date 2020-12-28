@@ -7,21 +7,21 @@ type CloudProviders struct {
 }
 
 type GCPConfig struct {
-	Disabled       bool   `yaml:"disabled"`
-	ProjectID      string `yaml:"project_id"`
-	Network        string `yaml:"network"`
-	LowestPriority int64  `yaml:"lowest_priority"`
-	MaxRules       int    `yaml:"max_rules"`
+	Disabled  bool   `yaml:"disabled"`
+	ProjectID string `yaml:"project_id"`
+	Network   string `yaml:"network"`
+	Priority  int64  `yaml:"priority"`
+	MaxRules  int    `yaml:"max_rules"`
 	// Endpoint is used for making calls to a mock server instead of the real Google services endpoints.
 	Endpoint string `yaml:"endpoint"`
 }
 
 type CloudArmorConfig struct {
-	Disabled       bool   `yaml:"disabled"`
-	ProjectID      string `yaml:"project_id"`
-	Policy         string `yaml:"policy"`
-	LowestPriority int64  `yaml:"lowest_priority"`
-	MaxRules       int    `yaml:"max_rules"`
+	Disabled  bool   `yaml:"disabled"`
+	ProjectID string `yaml:"project_id"`
+	Policy    string `yaml:"policy"`
+	Priority  int64  `yaml:"priority"`
+	MaxRules  int    `yaml:"max_rules"`
 	// Endpoint is used for making calls to a mock server instead of the real Google services endpoints.
 	Endpoint string `yaml:"endpoint"`
 }
@@ -31,7 +31,7 @@ type AWSConfig struct {
 	Region            string `yaml:"region"`
 	FirewallPolicy    string `yaml:"firewall_policy"`
 	Capacity          int    `yaml:"capacity"`
-	RuleGroupPriority int64  `yaml:"rule_group_priority"`
+	RuleGroupPriority int64  `yaml:"priority"`
 	// Endpoint is used for making calls to a mock server instead of the real AWS services endpoints.
 	Endpoint string `yaml:"endpoint"`
 }

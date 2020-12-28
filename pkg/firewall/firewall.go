@@ -146,9 +146,9 @@ func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.Firewal
 
 func (f *Bouncer) getNextPriority(rules []*models.FirewallRule) int64 {
 	if len(rules) == 0 {
-		return f.Client.LowestPriority()
+		return f.Client.Priority()
 	}
-	highestPriority := f.Client.LowestPriority()
+	highestPriority := f.Client.Priority()
 	for _, rule := range rules {
 		if rule.Priority > highestPriority {
 			highestPriority = rule.Priority

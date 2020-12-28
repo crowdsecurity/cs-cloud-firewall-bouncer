@@ -12,11 +12,11 @@ import (
 )
 
 type Client struct {
-	svc            GoogleComputeServiceIface
-	project        string
-	policy         string
-	lowestPriority int64
-	maxRules       int
+	svc      GoogleComputeServiceIface
+	project  string
+	policy   string
+	priority int64
+	maxRules int
 }
 
 const (
@@ -36,8 +36,8 @@ func (c *Client) MaxSourcesPerRule() int {
 func (c *Client) MaxRules() int {
 	return c.maxRules
 }
-func (c *Client) LowestPriority() int64 {
-	return c.lowestPriority
+func (c *Client) Priority() int64 {
+	return c.priority
 }
 
 func getProjectIDFromCredentials(config *models.CloudArmorConfig) (string, error) {
@@ -81,11 +81,11 @@ func NewClient(config *models.CloudArmorConfig) (*Client, error) {
 	}
 
 	return &Client{
-		svc:            NewGoogleComputeService(config.Endpoint),
-		project:        config.ProjectID,
-		policy:         config.Policy,
-		lowestPriority: config.LowestPriority,
-		maxRules:       config.MaxRules,
+		svc:      NewGoogleComputeService(config.Endpoint),
+		project:  config.ProjectID,
+		policy:   config.Policy,
+		priority: config.Priority,
+		maxRules: config.MaxRules,
 	}, nil
 }
 

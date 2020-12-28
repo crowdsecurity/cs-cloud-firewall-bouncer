@@ -107,7 +107,6 @@ func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, e
 		cloudClients = append(cloudClients, cloudArmorClient)
 	}
 	if len(cloudClients) == 0 {
-		// @TODO: Implement AWS WAF Firewall, Azure, GCP Cloud Armor
 		return nil, fmt.Errorf("at least one cloud provider must be configured")
 	}
 	return cloudClients, nil

@@ -23,7 +23,7 @@ func (c *FakeClientEmpty) MaxRules() int {
 	return 2
 }
 
-func (c *FakeClientEmpty) LowestPriority() int64 {
+func (c *FakeClientEmpty) Priority() int64 {
 	return 0
 }
 
@@ -62,7 +62,7 @@ func (c *FakeClientExistingRules) MaxRules() int {
 	return 2
 }
 
-func (c *FakeClientExistingRules) LowestPriority() int64 {
+func (c *FakeClientExistingRules) Priority() int64 {
 	return 0
 }
 

@@ -171,7 +171,7 @@
       network: global/networks/default
       sourceRanges:
         - 1.2.3.9/32
-      priority: 0
+      priority: 100
   httpResponse:
     statusCode: 200
     body:

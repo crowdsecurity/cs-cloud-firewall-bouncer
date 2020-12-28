@@ -8,7 +8,7 @@ cloud_providers:
     region: ${AWS_REGION}
     firewall_policy: ${AWS_FIREWALL_POLICY}
     capacity: ${AWS_CAPACITY}
-    rule_group_priority: ${AWS_RULE_GROUP_PRIORITY}
+    priority: ${AWS_RULE_GROUP_PRIORITY}
 rule_name_prefix: ${RULE_NAME_PREFIX}
 update_frequency: 10s
 daemonize: true

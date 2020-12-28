@@ -151,6 +151,6 @@ func TestAssignDefaultConfig(t *testing.T) {
 		RuleGroupPriority: 0,
 	}
 	assignDefault(&config)
-	assert.Equal(t, 1000, config.Capacity)
-	assert.Equal(t, int64(0), config.RuleGroupPriority)
+	assert.Equal(t, defaultCapacity, config.Capacity)
+	assert.Equal(t, defaultPriority, config.RuleGroupPriority)
 }

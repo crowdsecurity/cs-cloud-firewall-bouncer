@@ -2,6 +2,7 @@ cloud_providers:
   gcp:
     network: default
     endpoint: http://localhost:1080/
+    priority: 100
   cloudarmor:
     policy: test-policy
     endpoint: http://localhost:1080/
@@ -9,7 +10,7 @@ cloud_providers:
     region: us-east-1
     firewall_policy: test-policy
     capacity:
-    rule_group_priority:
+    priority:
     endpoint: http://localhost:1080/
 rule_name_prefix: crowdsec
 update_frequency: 2s

@@ -24,7 +24,7 @@ type Client struct {
 const (
 	providerName          = "aws"
 	defaultCapacity       = 1000
-	defaultLowestPriority = 1
+	defaultPriority int64 = 1
 )
 
 func (c *Client) MaxSourcesPerRule() int {
@@ -34,7 +34,7 @@ func (c *Client) MaxRules() int {
 	return 1
 }
 
-func (c *Client) LowestPriority() int64 {
+func (c *Client) Priority() int64 {
 	return c.ruleGroupPriority
 }
 
@@ -54,8 +54,8 @@ func assignDefault(config *models.AWSConfig) {
 		config.Capacity = defaultCapacity
 	}
 	if config.RuleGroupPriority == 0 {
-		log.Debugf("Setting default lowest rule group priority (%d)", defaultLowestPriority)
-		config.RuleGroupPriority = defaultLowestPriority
+		log.Debugf("Setting default lowest rule group priority (%d)", defaultPriority)
+		config.RuleGroupPriority = defaultPriority
 	}
 }
 
