@@ -97,9 +97,7 @@ func TestAddSourceRangeToEmptyRules(t *testing.T) {
 	var fakeClient, _ = testingUtils.NewEmptyClient()
 	var f = &Bouncer{fakeClient, "test-rule"}
 	var rules []*models.FirewallRule
-	source1 := "0.0.0.1"
-	decision1 := csmodels.Decision{Value: &source1}
-	rules = f.addSourceRangeToRules(rules, &decision1)
+	rules = f.addSourceRangeToRules(rules, "0.0.0.1/32")
 	assert.Equal(t, len(rules[0].SourceRanges), 1)
 }
 
@@ -166,10 +164,8 @@ func TestBouncer_Update(t *testing.T) {
 func Test_deleteSourceRanges(t *testing.T) {
 	type args struct {
 		rules     []*models.FirewallRule
-		decisions []*csmodels.Decision
+		decisions map[string]bool
 	}
-	source1 := "0.0.0.1"
-	source2 := "1.0.0.0"
 	tests := map[string]args{
 		"no_op": {
 			rules: []*models.FirewallRule{{
@@ -178,7 +174,7 @@ func Test_deleteSourceRanges(t *testing.T) {
 					"1.0.0.0/32": true,
 				},
 			}},
-			decisions: []*csmodels.Decision{{Value: &source1}},
+			decisions: map[string]bool{"0.0.0.1/32": true},
 		},
 		"op": {
 			rules: []*models.FirewallRule{{
@@ -188,7 +184,7 @@ func Test_deleteSourceRanges(t *testing.T) {
 					"1.1.1.0/32": true,
 				},
 			}},
-			decisions: []*csmodels.Decision{{Value: &source2}},
+			decisions: map[string]bool{"1.0.0.0/32": true},
 		},
 	}
 	t.Run("no_op", func(t *testing.T) {

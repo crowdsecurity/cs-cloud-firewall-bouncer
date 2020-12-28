@@ -24,7 +24,8 @@ type FirewallRule struct {
 	SourceRanges map[string]bool
 	// State determines the operation when updating the firewall rule.
 	// An empty State will result in noop when updating the rule at the cloud provider.
-	State ruleState
+	State    ruleState
+	Priority int64
 }
 
 // ConvertSourceRangesMapToSlice Convert SourceRanges map to slice

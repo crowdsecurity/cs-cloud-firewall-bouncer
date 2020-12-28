@@ -2,6 +2,9 @@ cloud_providers:
   gcp:
     network: default
     endpoint: http://localhost:1080/
+  cloudarmor:
+    policy: test-policy
+    endpoint: http://localhost:1080/
   aws:
     region: us-east-1
     firewall_policy: test-policy

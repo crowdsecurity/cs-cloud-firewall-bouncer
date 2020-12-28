@@ -28,6 +28,7 @@
         - name: crowdsec-denim-mushiness
           sourceRanges:
             - 1.2.3.4/32
+          priority: 0
   times:
     remainingTimes: 1
     unlimited: false
@@ -70,6 +71,7 @@
           sourceRanges:
             - 1.2.3.4/32
             - 1.2.3.5/32
+          priority: 0
   times:
     remainingTimes: 1
     unlimited: false
@@ -114,6 +116,7 @@
             - 1.2.3.4/32
             - 1.2.3.5/32
             - 1.2.3.9/32
+          priority: 0
   times:
     remainingTimes: 1
     unlimited: false
@@ -168,6 +171,7 @@
       network: global/networks/default
       sourceRanges:
         - 1.2.3.9/32
+      priority: 0
   httpResponse:
     statusCode: 200
     body:

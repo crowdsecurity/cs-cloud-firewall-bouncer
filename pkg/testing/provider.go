@@ -23,6 +23,10 @@ func (c *FakeClientEmpty) MaxRules() int {
 	return 2
 }
 
+func (c *FakeClientEmpty) LowestPriority() int64 {
+	return 0
+}
+
 func (c *FakeClientEmpty) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error) {
 	return nil, nil
 }
@@ -56,6 +60,10 @@ func (c *FakeClientExistingRules) MaxSourcesPerRule() int {
 }
 func (c *FakeClientExistingRules) MaxRules() int {
 	return 2
+}
+
+func (c *FakeClientExistingRules) LowestPriority() int64 {
+	return 0
 }
 
 func (c *FakeClientExistingRules) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error) {

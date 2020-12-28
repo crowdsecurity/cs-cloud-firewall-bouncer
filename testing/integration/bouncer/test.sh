@@ -20,7 +20,7 @@ pushd testing/integration/bouncer || exit 1
     echo "Waiting for mock server to be up"
     count=0
     until $(curl --output /dev/null --silent --fail http://localhost:1080/healthz); do
-        if [[ $count -ge 10 ]]; then
+        if [[ $count -ge 5 ]]; then
             echo "Something went wrong starting the mock server:"
             docker-compose logs
             docker-compose down
