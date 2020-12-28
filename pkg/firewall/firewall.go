@@ -16,14 +16,39 @@ type Bouncer struct {
 	RuleNamePrefix string
 }
 
+func convertDecisionsToMap(decisions []*csmodels.Decision) map[string]bool {
+
+	m := make(map[string]bool)
+	for _, decision := range decisions {
+		cidr := models.GetCIDR(*decision.Value)
+		m[cidr] = true
+	}
+	return m
+}
+func removeDuplicatesDecisions(deleted map[string]bool, new map[string]bool) {
+
+	for d := range deleted {
+		for n := range new {
+			if d == n {
+				delete(deleted, d)
+			}
+		}
+	}
+}
+
 // Update updates the cloud firewall with the decisions specified
 func (f *Bouncer) Update(decisionStream *csmodels.DecisionsStreamResponse) error {
 	rules, err := f.Client.GetRules(f.RuleNamePrefix)
 	if err != nil {
 		return err
 	}
-	deleteSourceRanges(rules, decisionStream.Deleted)
-	rules = f.addSourceRanges(rules, decisionStream.New)
+
+	deleted := convertDecisionsToMap(decisionStream.Deleted)
+	new := convertDecisionsToMap(decisionStream.New)
+	removeDuplicatesDecisions(deleted, new)
+	deleteSourceRanges(rules, deleted)
+
+	rules = f.addSourceRanges(rules, new)
 	err = f.updateProviderFirewallRules(rules)
 	if err != nil {
 		return err
@@ -31,31 +56,30 @@ func (f *Bouncer) Update(decisionStream *csmodels.DecisionsStreamResponse) error
 	return nil
 }
 
-func deleteSourceRanges(rules []*models.FirewallRule, decisions []*csmodels.Decision) {
+func deleteSourceRanges(rules []*models.FirewallRule, sources map[string]bool) {
 	log.Debugf("deleting source ranges")
 	if len(rules) == 0 {
 		return
 	}
-	for _, decision := range decisions {
-		deleteSourceRange(rules, *decision.Value)
+	for source := range sources {
+		deleteSourceRange(rules, source)
 	}
 }
 
-func (f *Bouncer) addSourceRanges(rules []*models.FirewallRule, decisions []*csmodels.Decision) []*models.FirewallRule {
+func (f *Bouncer) addSourceRanges(rules []*models.FirewallRule, sources map[string]bool) []*models.FirewallRule {
 	log.Debugf("adding source ranges")
-	for _, decision := range decisions {
-		log.Debugf("processiong decision %s", *decision.Value)
-		rules = f.addSourceRangeToRules(rules, decision)
+	for source := range sources {
+		log.Debugf("processiong decision %s", source)
+		rules = f.addSourceRangeToRules(rules, source)
 	}
 	return rules
 }
 
 func deleteSourceRange(rules []*models.FirewallRule, source string) {
-	cidr := models.GetCIDR(source)
 	for _, rule := range rules {
-		if rule.SourceRanges[cidr] {
-			log.Debugf("deleting %s from %s", cidr, rule.Name)
-			delete(rule.SourceRanges, cidr)
+		if rule.SourceRanges[source] {
+			log.Debugf("deleting %s from %s", source, rule.Name)
+			delete(rule.SourceRanges, source)
 			rule.State = models.Modified
 		}
 	}
@@ -70,22 +94,19 @@ func sourceExists(rules []*models.FirewallRule, source string) bool {
 	return false
 }
 
-func (f *Bouncer) addSourceRangeToRules(rules []*models.FirewallRule, decision *csmodels.Decision) []*models.FirewallRule {
-
-	source := decision.Value
-	cidr := models.GetCIDR(*source)
-	if sourceExists(rules, cidr) {
-		log.Debugf("%s already exist", cidr)
+func (f *Bouncer) addSourceRangeToRules(rules []*models.FirewallRule, source string) []*models.FirewallRule {
+	if sourceExists(rules, source) {
+		log.Debugf("%s already exist", source)
 		return rules
 	}
-	log.Debugf("adding %s to rules", cidr)
+	log.Debugf("adding %s to rules", source)
 	rule, rules, err := f.getRuleToUpdate(rules)
 	if err != nil {
 		log.Warning(err)
 		return rules
 	}
-	rule.SourceRanges[cidr] = true
-	log.Debugf("added %s to %s", cidr, rule.Name)
+	rule.SourceRanges[source] = true
+	log.Debugf("added %s to %s", source, rule.Name)
 	return rules
 }
 
@@ -97,7 +118,7 @@ func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.Firewal
 	}
 	if len(rules) == 0 {
 		log.Debugf("no existing rule, we need to create a new one")
-		ruleToUpdate = f.genNewRule()
+		ruleToUpdate = f.genNewRule(rules)
 		rules = append(rules, ruleToUpdate)
 		return ruleToUpdate, rules, nil
 	}
@@ -117,10 +138,23 @@ func (f *Bouncer) getRuleToUpdate(rules []*models.FirewallRule) (*models.Firewal
 		if len(rules) >= f.Client.MaxRules() {
 			return nil, rules, fmt.Errorf("can't create a new rule, at maximum capacity")
 		}
-		ruleToUpdate = f.genNewRule()
+		ruleToUpdate = f.genNewRule(rules)
 		rules = append(rules, ruleToUpdate)
 	}
 	return ruleToUpdate, rules, nil
+}
+
+func (f *Bouncer) getNextPriority(rules []*models.FirewallRule) int64 {
+	if len(rules) == 0 {
+		return f.Client.Priority()
+	}
+	highestPriority := f.Client.Priority()
+	for _, rule := range rules {
+		if rule.Priority > highestPriority {
+			highestPriority = rule.Priority
+		}
+	}
+	return highestPriority + 1
 }
 
 // genNewRuleName generates a new rule name by appending 2 random words to the rule name prefix.
@@ -130,11 +164,13 @@ func (f *Bouncer) genNewRuleName() string {
 	return r
 }
 
-func (f *Bouncer) genNewRule() *models.FirewallRule {
+func (f *Bouncer) genNewRule(rules []*models.FirewallRule) *models.FirewallRule {
+
 	return &models.FirewallRule{
 		Name:         f.genNewRuleName(),
 		SourceRanges: make(map[string]bool),
 		State:        models.New,
+		Priority:     f.getNextPriority(rules),
 	}
 }
 

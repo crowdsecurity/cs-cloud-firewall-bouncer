@@ -15,6 +15,7 @@ import (
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/models"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/providers"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/providers/aws"
+	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/providers/cloudarmor"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/providers/gcp"
 	"github.com/fallard84/cs-cloud-firewall-bouncer/pkg/version"
 	log "github.com/sirupsen/logrus"
@@ -98,8 +99,14 @@ func getProviderClients(config config.BouncerConfig) ([]providers.CloudClient, e
 		}
 		cloudClients = append(cloudClients, awsClient)
 	}
+	if (models.CloudArmorConfig{}) != config.CloudProviders.CloudArmor && !config.CloudProviders.CloudArmor.Disabled {
+		cloudArmorClient, err := cloudarmor.NewClient(&config.CloudProviders.CloudArmor)
+		if err != nil {
+			return nil, err
+		}
+		cloudClients = append(cloudClients, cloudArmorClient)
+	}
 	if len(cloudClients) == 0 {
-		// @TODO: Implement AWS WAF Firewall, Azure, GCP Cloud Armor
 		return nil, fmt.Errorf("at least one cloud provider must be configured")
 	}
 	return cloudClients, nil

@@ -8,7 +8,11 @@ cloud_providers:
     region: us-east1
     firewall_policy: my-firewall-policy
     capacity: 200
-    rule_group_priority: 1
+    priority: 1
+  cloudarmor:
+    disabled: false
+    project_id: my-project
+    policy: cloudarmor-policy
 rule_name_prefix: crowdsec
 update_frequency: 10s
 daemonize: true

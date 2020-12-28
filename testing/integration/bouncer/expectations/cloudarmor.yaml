@@ -1,0 +1,226 @@
+- id: cloudarmor-get-firewall-policy
+  httpRequest:
+    method: GET
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy
+  httpResponse:
+    statusCode: 200
+    body:
+      rules:
+        - description: crowdsec-denim-mushiness
+          priority: 0
+          match:
+            config:
+              srcIpRanges:
+                - 1.2.1.1/32
+                - 1.2.1.2/32
+                - 1.2.1.3/32
+                - 1.2.1.4/32
+                - 1.2.1.5/32
+                - 1.2.3.1/32
+                - 1.2.3.2/32
+                - 1.2.3.3/32
+                - 1.2.3.4/32
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: cloudarmor-patch-rule1
+  httpRequest:
+    method: POST
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy/patchRule
+    queryStringParameters:
+      priority: ["0"]
+    body:
+      match:
+        config:
+          srcIpRanges:
+            - 1.2.1.1/32
+            - 1.2.1.2/32
+            - 1.2.1.3/32
+            - 1.2.1.4/32
+            - 1.2.1.5/32
+            - 1.2.3.1/32
+            - 1.2.3.2/32
+            - 1.2.3.3/32
+            - 1.2.3.4/32
+            - 1.2.3.5/32
+  httpResponse:
+    statusCode: 200
+    body:
+      name: "operation-12345"
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: get-operation
+  httpRequest:
+    method: POST
+    path: /projects/crowdsec-dummy-project/global/operations/operation-12345/wait
+  httpResponse:
+    statusCode: 200
+    body:
+      status: "DONE"
+  times:
+    unlimited: true
+- id: cloudarmor-get-firewall-policy2
+  httpRequest:
+    method: GET
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy
+  httpResponse:
+    statusCode: 200
+    body:
+      rules:
+        - description: crowdsec-denim-mushiness
+          priority: 0
+          match:
+            config:
+              srcIpRanges:
+                - 1.2.1.1/32
+                - 1.2.1.2/32
+                - 1.2.1.3/32
+                - 1.2.1.4/32
+                - 1.2.1.5/32
+                - 1.2.3.1/32
+                - 1.2.3.2/32
+                - 1.2.3.3/32
+                - 1.2.3.4/32
+                - 1.2.3.5/32
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: cloudarmor-add-rule
+  httpRequest:
+    method: POST
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy/addRule
+    body:
+      action: "deny(403)"
+      match:
+        config:
+          srcIpRanges:
+            - 1.2.3.9/32
+        versionedExpr: "SRC_IPS_V1"
+  httpResponse:
+    statusCode: 200
+    body:
+      name: "operation-12345"
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: cloudarmor-get-firewall-policy3
+  httpRequest:
+    method: GET
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy
+  httpResponse:
+    statusCode: 200
+    body:
+      rules:
+        - description: crowdsec-denim-mushiness
+          priority: 0
+          match:
+            config:
+              srcIpRanges:
+                - 1.2.1.1/32
+                - 1.2.1.2/32
+                - 1.2.1.3/32
+                - 1.2.1.4/32
+                - 1.2.1.5/32
+                - 1.2.3.1/32
+                - 1.2.3.2/32
+                - 1.2.3.3/32
+                - 1.2.3.4/32
+                - 1.2.3.5/32
+        - description: crowdsec-busy-hacker
+          priority: 1
+          match:
+            config:
+              srcIpRanges:
+                - 1.2.3.9/32
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: cloudarmor-patch-rule2
+  httpRequest:
+    method: POST
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy/patchRule
+    queryStringParameters:
+      priority: ["0"]
+    body:
+      match:
+        config:
+          srcIpRanges:
+            - 1.2.1.1/32
+            - 1.2.1.2/32
+            - 1.2.1.3/32
+            - 1.2.1.4/32
+            - 1.2.1.5/32
+            - 1.2.3.1/32
+            - 1.2.3.2/32
+            - 1.2.3.3/32
+  httpResponse:
+    statusCode: 200
+    body:
+      name: "operation-12345"
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: cloudarmor-remove-rule
+  httpRequest:
+    method: POST
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy/removeRule
+    queryStringParameters:
+      priority: ["1"]
+  httpResponse:
+    statusCode: 200
+    body:
+      name: "operation-12345"
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: cloudarmor-get-firewall-policy4
+  httpRequest:
+    method: GET
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy
+  httpResponse:
+    statusCode: 200
+    body:
+      rules:
+        - description: crowdsec-denim-mushiness
+          priority: 0
+          match:
+            config:
+              srcIpRanges:
+                - 1.2.1.1/32
+                - 1.2.1.2/32
+                - 1.2.1.3/32
+                - 1.2.1.4/32
+                - 1.2.1.5/32
+                - 1.2.3.1/32
+                - 1.2.3.2/32
+                - 1.2.3.3/32
+  times:
+    remainingTimes: 1
+    unlimited: false
+- id: cloudarmor-patch-rule3
+  httpRequest:
+    method: POST
+    path: /projects/crowdsec-dummy-project/global/securityPolicies/test-policy/patchRule
+    queryStringParameters:
+      priority: ["0"]
+    body:
+      match:
+        config:
+          srcIpRanges:
+            - 1.2.1.1/32
+            - 1.2.1.2/32
+            - 1.2.1.3/32
+            - 1.2.1.4/32
+            - 1.2.1.5/32
+            - 1.2.3.1/32
+            - 1.2.3.2/32
+            - 1.2.3.3/32
+            - 1.2.3.9/32
+  httpResponse:
+    statusCode: 200
+    body:
+      name: "operation-12345"
+  times:
+    remainingTimes: 1
+    unlimited: false

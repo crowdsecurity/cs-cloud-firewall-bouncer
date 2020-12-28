@@ -58,6 +58,7 @@ func (s *mockedAWSSvc) DescribeRuleGroup(input *networkfirewall.DescribeRuleGrou
 										},
 									},
 								},
+								Priority: aws.Int64(1),
 							},
 						},
 					},
@@ -150,6 +151,6 @@ func TestAssignDefaultConfig(t *testing.T) {
 		RuleGroupPriority: 0,
 	}
 	assignDefault(&config)
-	assert.Equal(t, 1000, config.Capacity)
-	assert.Equal(t, 1, config.RuleGroupPriority)
+	assert.Equal(t, defaultCapacity, config.Capacity)
+	assert.Equal(t, defaultPriority, config.RuleGroupPriority)
 }

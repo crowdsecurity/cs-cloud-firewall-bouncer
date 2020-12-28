@@ -27,6 +27,7 @@ The Cloud Firewall Bouncer will periodically fetch new and expired/removed decis
 Supported cloud providers:
 
 - Google Cloud Platform (GCP) Network Firewall:heavy_check_mark:
+- Google Cloud Platform (GCP) Cloud Armor:heavy_check_mark:
 - Amazon Web Services (AWS) Network Firewall :heavy_check_mark:
 
 ## Usage with example
@@ -94,12 +95,19 @@ $ vim /etc/crowdsec/cs-cloud-firewall-bouncer/cs-cloud-firewall-bouncer.yaml
 cloud_providers: # 1 or more provider needs to be specified
   gcp:
     project_id: gcp-project-id # optional if using application default credentials, will override project id of the application default credentials
-    network: default # mandatory, this is the VPC network where the firewall rules will be created
+    network: default # mandatory. This is the VPC network where the firewall rules will be created
+    priority: 0 # optional, defaults to 0 (highest priority). Additional rules will be incremented by 1.
+    max_rules: 10 # optional, defaults to 10. This is the maximum number of rules to create. One GCP network firewall rule can contain at most 256 source ranges. Using the default of 10 means 2560 source ranges at most can be created. A GCP project has a default quota of 100 rules across all VPC networks. See https://cloud.google.com/vpc/docs/quota for more info.
   aws:
     region: us-east-1 # mandatory
     firewall_policy: policy-name # mandatory, this is the firewall policy which will contain the rule group. The firewall policy must exist.
-    capacity: 1000 # optional, defaults to 1000. This is the capacity of the rule group that the bouncer will create.
-    rule_group_priority: 1 # optional, defaults to 1. This is the priority of the rule group in the firewall policy.
+    capacity: 1000 # optional, defaults to 1000. This is the capacity of the stateless rule group that the bouncer will create. A capacity of 1000 signify that the rule will contain at most 1000 source ranges. AWS has a default quota of 10,000 stateless capacity per account per region. See https://docs.aws.amazon.com/network-firewall/latest/developerguide/quotas.html for more info. This capacity is only used when the rule is being created and will not be updated afterwards.
+    priority: 1 # optional, defaults to 1 (highest priority). This is the priority of the rule group in the firewall policy.
+  cloudarmor:
+    project_id: gcp-project-id # optional if using application default credentials, will override project id of the application
+    policy: test-policy # mandatory, this is the cloud armor policy which will contain the rules. The cloud armor policy must exist.
+    priority: 0 # optional, defaults to 0 (highest priority). Additional rules will be incremented by 1.
+    max_rules: 100 # optional, defaults to 100. This is the maximum number of rules to create. One cloud armor rule can contain at most 10 source ranges. A GCP project has a default quota of 200 rules across all security policies. Using the default of 100 means 1000 source ranges at most can be created. See https://cloud.google.com/armor/quotas for more info.
 rule_name_prefix: crowdsec # mandatory, this is the prefix for the firewall rule name(s) to create/update
 update_frequency: 10s
 daemonize: true
@@ -120,7 +128,9 @@ digit. The name cannot contain two consecutive dash ('-') characters.
 
 ### GCP
 
-Authentication to GCP is done through [Application Default Credentials](https://cloud.google.com/docs/authentication/production). If using a service account, the GCP project ID will be automatically determined (using the project ID of the service account) and does not have to be specified in the configuration. If the service account resides in a different project than the VPC network, the GCP project ID must be overridden in the configuration.
+Authentication to GCP is done through [Application Default Credentials](https://cloud.google.com/docs/authentication/production). If using a service account, the GCP project ID will be automatically determined (using the project ID of the service account) and does not have to be specified in the configuration. If the service account resides in a different project than the VPC network/Cloud Armor policy, the GCP project ID must be overridden in the configuration.
+
+#### Network Firewall
 
 The service account will need the following permissions:
 
@@ -130,6 +140,15 @@ The service account will need the following permissions:
 - compute.firewalls.list
 - compute.firewalls.update
 - compute.networks.updatePolicy
+
+#### Cloud Armor
+
+The service account will need the following permissions:
+
+- compute.securityPolicies.get
+- compute.securityPolicies.update
+
+The managed role `roles/compute.securityAdmin` already provides these permissions.
 
 ### AWS
 

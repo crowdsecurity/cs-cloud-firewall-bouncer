@@ -13,6 +13,9 @@ AWS_REGION=""
 AWS_FIREWALL_POLICY=""
 AWS_CAPACITY=0
 AWS_RULE_GROUP_PRIORITY=0
+CLOUDARMOR_DISABLED=true
+CLOUDARMOR_PROJECT_ID=""
+CLOUDARMOR_POLICY=""
 RULE_NAME_PREFIX="crowdsec"
 
 gen_lapi_config() {
@@ -49,7 +52,16 @@ gen_providers_config() {
         gen_aws_config
     ;;
     esac
-    if [[ ${GCP_DISABLED} == "true" && ${AWS_DISABLED} == "true" ]]; then
+    read -rp "Do you want to add Cloud Armor as a provider? [Y/n] " -e response
+    case $response in
+    [Nn]* )
+        echo "Disabling Cloud Armor"
+    ;;
+    * )
+        gen_cloudarmor_config
+    ;;
+    esac
+    if [[ ${GCP_DISABLED} == "true" && ${AWS_DISABLED} == "true" && ${CLOUDARMOR_DISABLED} == "true" ]]; then
         echo "At least one provider should be configured"
         exit 1
     fi
@@ -68,6 +80,11 @@ gen_aws_config() {
     read -rp "Rule group priority (leave empty for 1): " -e AWS_RULE_GROUP_PRIORITY
     AWS_DISABLED=false
 }
+gen_cloudarmor_config() {
+    read -rp "Cloud Armor project ID: " -e CLOUDARMOR_PROJECT_ID
+    read -rp "Policy name: " -e CLOUDARMOR_POLICY
+    CLOUDARMOR_DISABLED=false
+}
 
 install_bouncer() {
 	install -v -m 755 -D "${BIN_PATH}" "${BIN_PATH_INSTALLED}"
@@ -80,6 +97,7 @@ install_bouncer() {
 gen_config_file() {
     GCP_DISABLED=${GCP_DISABLED} GCP_PROJECT_ID=${GCP_PROJECT_ID} GCP_NETWORK_ID=${GCP_NETWORK_ID} \
     AWS_DISABLED=${AWS_DISABLED} AWS_REGION=${AWS_REGION} AWS_FIREWALL_POLICY=${AWS_FIREWALL_POLICY} AWS_CAPACITY=${AWS_CAPACITY} AWS_RULE_GROUP_PRIORITY=${AWS_RULE_GROUP_PRIORITY} \
+    CLOUDARMOR_DISABLED=${CLOUDARMOR_DISABLED} CLOUDARMOR_PROJECT_ID=${CLOUDARMOR_PROJECT_ID} CLOUDARMOR_POLICY=${CLOUDARMOR_POLICY} \
     API_URL=${API_URL} API_KEY=${API_KEY} RULE_NAME_PREFIX=${RULE_NAME_PREFIX} envsubst < ./config/cs-cloud-firewall-bouncer.yaml > "${CONFIG_DIR}cs-cloud-firewall-bouncer.yaml"
 }
 

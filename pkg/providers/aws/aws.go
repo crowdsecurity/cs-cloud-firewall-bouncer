@@ -18,13 +18,13 @@ type Client struct {
 	svc               networkfirewalliface.NetworkFirewallAPI
 	capacity          int
 	firewallPolicy    string
-	ruleGroupPriority int
+	ruleGroupPriority int64
 }
 
 const (
-	providerName             = "aws"
-	defaultCapacity          = 1000
-	defaultRuleGroupPriority = 1
+	providerName          = "aws"
+	defaultCapacity       = 1000
+	defaultPriority int64 = 1
 )
 
 func (c *Client) MaxSourcesPerRule() int {
@@ -32,6 +32,10 @@ func (c *Client) MaxSourcesPerRule() int {
 }
 func (c *Client) MaxRules() int {
 	return 1
+}
+
+func (c *Client) Priority() int64 {
+	return c.ruleGroupPriority
 }
 
 func (c *Client) GetProviderName() string {
@@ -46,10 +50,12 @@ func init() {
 
 func assignDefault(config *models.AWSConfig) {
 	if config.Capacity == 0 {
+		log.Debugf("Setting default rule group capacity (%d)", defaultCapacity)
 		config.Capacity = defaultCapacity
 	}
 	if config.RuleGroupPriority == 0 {
-		config.RuleGroupPriority = defaultRuleGroupPriority
+		log.Debugf("Setting default lowest rule group priority (%d)", defaultPriority)
+		config.RuleGroupPriority = defaultPriority
 	}
 }
 
@@ -172,6 +178,7 @@ func (c *Client) GetRules(ruleNamePrefix string) ([]*models.FirewallRule, error)
 			rule := models.FirewallRule{
 				Name:         *res.RuleGroupResponse.RuleGroupName,
 				SourceRanges: models.ConvertSourceRangesSliceToMap(sources),
+				Priority:     *res.RuleGroup.RulesSource.StatelessRulesAndCustomActions.StatelessRules[0].Priority,
 			}
 			rules = append(rules, &rule)
 		}
@@ -186,7 +193,7 @@ func (c *Client) CreateRule(rule *models.FirewallRule) error {
 	ruleType := networkfirewall.RuleGroupTypeStateless
 
 	awsRule := networkfirewall.StatelessRule{
-		Priority: aws.Int64(int64(c.ruleGroupPriority)),
+		Priority: aws.Int64(rule.Priority),
 		RuleDefinition: &networkfirewall.RuleDefinition{
 			MatchAttributes: &networkfirewall.MatchAttributes{
 				Sources: convertSourceMapToAWSSlice(rule.SourceRanges),

@@ -97,9 +97,7 @@ func TestAddSourceRangeToEmptyRules(t *testing.T) {
 	var fakeClient, _ = testingUtils.NewEmptyClient()
 	var f = &Bouncer{fakeClient, "test-rule"}
 	var rules []*models.FirewallRule
-	source1 := "0.0.0.1"
-	decision1 := csmodels.Decision{Value: &source1}
-	rules = f.addSourceRangeToRules(rules, &decision1)
+	rules = f.addSourceRangeToRules(rules, "0.0.0.1/32")
 	assert.Equal(t, len(rules[0].SourceRanges), 1)
 }
 
@@ -166,10 +164,8 @@ func TestBouncer_Update(t *testing.T) {
 func Test_deleteSourceRanges(t *testing.T) {
 	type args struct {
 		rules     []*models.FirewallRule
-		decisions []*csmodels.Decision
+		decisions map[string]bool
 	}
-	source1 := "0.0.0.1"
-	source2 := "1.0.0.0"
 	tests := map[string]args{
 		"no_op": {
 			rules: []*models.FirewallRule{{
@@ -178,7 +174,7 @@ func Test_deleteSourceRanges(t *testing.T) {
 					"1.0.0.0/32": true,
 				},
 			}},
-			decisions: []*csmodels.Decision{{Value: &source1}},
+			decisions: map[string]bool{"0.0.0.1/32": true},
 		},
 		"op": {
 			rules: []*models.FirewallRule{{
@@ -188,7 +184,7 @@ func Test_deleteSourceRanges(t *testing.T) {
 					"1.1.1.0/32": true,
 				},
 			}},
-			decisions: []*csmodels.Decision{{Value: &source2}},
+			decisions: map[string]bool{"1.0.0.0/32": true},
 		},
 	}
 	t.Run("no_op", func(t *testing.T) {
@@ -199,4 +195,113 @@ func Test_deleteSourceRanges(t *testing.T) {
 		deleteSourceRanges(tests["op"].rules, tests["op"].decisions)
 		assert.Equal(t, 1, len(tests["op"].rules[0].SourceRanges))
 	})
+}
+
+func Test_removeDuplicatesDecisions(t *testing.T) {
+	type args struct {
+		deleted map[string]bool
+		new     map[string]bool
+	}
+	tests := map[string]args{
+		"no_op": {
+			deleted: map[string]bool{"1.0.0.0/32": true, "1.0.0.1/32": true, "1.0.0.2/32": true},
+			new:     map[string]bool{"1.0.0.3/32": true},
+		},
+		"op": {
+			deleted: map[string]bool{"1.0.0.0/32": true, "1.0.0.1/32": true, "1.0.0.2/32": true},
+			new:     map[string]bool{"1.0.0.0/32": true},
+		},
+	}
+	t.Run("no_op", func(t *testing.T) {
+		removeDuplicatesDecisions(tests["no_op"].deleted, tests["no_op"].new)
+		assert.Equal(t, 3, len(tests["no_op"].deleted))
+		assert.Equal(t, 1, len(tests["no_op"].new))
+	})
+	t.Run("op", func(t *testing.T) {
+		removeDuplicatesDecisions(tests["op"].deleted, tests["op"].new)
+		assert.Equal(t, 2, len(tests["op"].deleted))
+		assert.Equal(t, 1, len(tests["op"].new))
+		assert.Equal(t, false, tests["op"].deleted["1.0.0.0/32"])
+	})
+}
+
+func TestBouncer_getNextPriority(t *testing.T) {
+	type fields struct {
+		Client         providers.CloudClient
+		RuleNamePrefix string
+	}
+	type args struct {
+		rules []*models.FirewallRule
+	}
+
+	var fakeClient, _ = testingUtils.NewEmptyClient()
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   int64
+	}{
+		{
+			name: "default-priority",
+			fields: fields{
+				Client:         fakeClient,
+				RuleNamePrefix: "test-rule",
+			},
+			args: args{
+				rules: []*models.FirewallRule{
+					{
+						Name: "test-rule1",
+						SourceRanges: map[string]bool{
+							"1.0.0.0/32": true,
+							"1.0.0.1/32": true,
+							"1.0.0.2/32": true,
+						},
+						Priority: 0,
+					},
+				},
+			},
+			want: int64(1),
+		},
+		{
+			name: "next-priority",
+			fields: fields{
+				Client:         fakeClient,
+				RuleNamePrefix: "test-rule",
+			},
+			args: args{
+				rules: []*models.FirewallRule{
+					{
+						Name: "test-rule1",
+						SourceRanges: map[string]bool{
+							"1.0.0.0/32": true,
+							"1.0.0.1/32": true,
+							"1.0.0.2/32": true,
+						},
+						Priority: 0,
+					},
+					{
+						Name: "test-rule2",
+						SourceRanges: map[string]bool{
+							"1.0.0.3/32": true,
+							"1.0.0.4/32": true,
+							"1.0.0.5/32": true,
+						},
+						Priority: 1,
+					},
+				},
+			},
+			want: int64(2),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := &Bouncer{
+				Client:         tt.fields.Client,
+				RuleNamePrefix: tt.fields.RuleNamePrefix,
+			}
+			if got := f.getNextPriority(tt.args.rules); got != tt.want {
+				t.Errorf("Bouncer.getNextPriority() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
