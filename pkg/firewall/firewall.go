@@ -69,7 +69,7 @@ func deleteSourceRanges(rules []*models.FirewallRule, sources map[string]bool) {
 func (f *Bouncer) addSourceRanges(rules []*models.FirewallRule, sources map[string]bool) []*models.FirewallRule {
 	log.Debugf("adding source ranges")
 	for source := range sources {
-		log.Debugf("processiong decision %s", source)
+		log.Debugf("processing decision %s", source)
 		rules = f.addSourceRangeToRules(rules, source)
 	}
 	return rules
